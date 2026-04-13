@@ -1,34 +1,83 @@
 %% main.m
-clear; clc;
-torque_Nm = 200; % [Nm]
-cornerSpeed_rpm = 2900; % [rpm]
-maxSpeed_rpm = 13500; % [rpm]
-vdcLink_V = 650; % [V]
-poles = 8;
-slots = 60;
-airgap_mm = 1; % [mm]
-br20_T = 1.37; % [T]
+% Main script to build the motor rotor in COMSOL.
+%% --- Call the first dimensioning script (Esson's rule)
 
-spec = MotorSpec(torque_Nm, cornerSpeed_rpm, maxSpeed_rpm, ...
-                vdcLink_V, poles, slots, ...
-                airgap_mm, br20_T);
-spec.summary()
-essonsSizer = EssonsSizer(spec);
-essonsSizer.solve();         % run
-essonsSizer.summary();       % print results
-rotorSizer = IPMRotorSizer(spec);
-rotorSizer.solve();          % run until convergence
-rotorSizer.summary();        % print results
+%% --- Call the second dimensioning script (Article)
 
-% Build MotorGeometry from sizing results
-motorGeometry = MotorGeometry.fromSizingResults(spec, essonsSizer, rotorSizer);
+%% --- Input parameters (normally obtained with previous scripts)
+D_r     = 55e-3;        % [m]   Rotor outer radius (= stator inner radius - air gap)
+D_ir    = 15e-3;        % [m]   Inner radius of rotor lamination
+air_gap = 2e-3;         % [m]   Air-gap radius
+p       = 4;            % [-]   Number of pole pairs
+b_m     = 20e-3;        % [m]   Magnet length
+h_m     = 5e-3;         % [m]   Magnet width
+w_ib    = 5e-3;         % [m]   Magnet spacing
+h_ry    = 10e-3;        % [m]   Magnet spacing with inner radius
+angle_m = 25*2*pi/360;  % [rad] Magnet angle
 
-materials = MotorMaterials();
-comsolInterface = ComsolInterface(motorGeometry, materials);
-comsolInterface.drawStatorSector();
-% comsolInterface.drawRotorSector();
-% comsolInterface.createSelections();
-% comsolInterface.defineMaterials(materials);
+draw_only_sector = true;   % [bool]    Specify if only one sector of the
+                            %           motor has to be drawn
+
+r_si = D_r + air_gap;
+r_so = r_si + 10e-3;
+Qs = 10;
+slot_depth = 5e-3;  % [m]   Depth of the stator slots
+slot_width = 5e-3;   % [m]   Width of the stator slots
+
+mu_r_shaft  = 1;        % [-]   Relative permeability (non-magnetic shaft)
+sigma_shaft = 1.4e6;    % [S/m] Electrical conductivity of stainless steel
+epsilon_r_shaft = 0.8;
+mu_r_iron   = 5000;     % [-]   Relative permeability of silicon steel (linear approximation)
+sigma_iron  = 2e6;      % [S/m] Electrical conductivity of silicon steel lamination
+epsilon_r_iron = 0.8;
+mu_r_air    = 1;        % [-]   Relative permeability of air (= vacuum)
+sigma_air   = 0;        % [S/m] Air is a perfect electrical insulator
+mu_r_magnets  = 1.05;   % [-]   Relative permeability of NdFeB (close to 1)
+sigma_magnets = 6.25e5; % [S/m] Electrical conductivity of NdFeB
+Br            = 1.3;    % [T]   Remanent flux density of NdFeB (N42 grade)
+mesh_size = 5;          % [-]   Mesh refinement level: 1 (extremely fine) to 9 (extremely coarse)
+%% --- Establish COMSOL connection
+comsolInterface = ComsolInterface();
+comsolInterface.start();
+% comsolInterface.runComsolSimulation(params, config);
+% %% --- Create model and geometry node
+% import com.comsol.model.*
+% import com.comsol.model.util.*
+
+% model    = ModelUtil.create('MotorModel');  % create a new COMSOL model
+% comp_tag = 'comp1';
+% comp = model.component.create(comp_tag, true);
+% geom_tag = 'geom1';
+% geom     = model.geom.create(geom_tag, 2);  % 2D geometry
+% phys_tag = 'mf';
+% phys = comp.physics.create(phys_tag, 'InductionCurrents', geom_tag);
+
+% %% --- Call the stator drawing function
+% draw_stator_sector(model, geom_tag, ...
+%                             r_si, ...
+%                             r_so, ...
+%                             Qs, ...
+%                             p, ...
+%                             slot_depth, ...
+%                             slot_width, ...
+%                             draw_only_sector)
+
+% %% --- Call the rotor drawing function
+% [left_magnet_points, right_magnet_points] = draw_rotor_sector(model, geom_tag, ...
+%                                               D_r, D_ir, air_gap, p, ...
+%                                               b_m, h_m, w_ib, h_ry, angle_m, ...
+%                                               draw_only_sector);
+
+% %% --- Call the selection definition function
+% create_selections(model, geom_tag, draw_only_sector, left_magnet_points, right_magnet_points, ...
+%     D_ir, D_r, r_si, r_so, p)
+
+% %% --- Call the materials function
+% define_materials(   model, comp_tag, phys_tag, draw_only_sector, mesh_size, ...
+%                     mu_r_shaft, sigma_shaft, epsilon_r_shaft, ...
+%                     mu_r_iron, sigma_iron, epsilon_r_iron, ...
+%                     mu_r_air, sigma_air, ...
+%                     mu_r_magnets, sigma_magnets, Br);
 
 % %% --- Save the model
 % save_path = fullfile(pwd, 'motor_model.mph');

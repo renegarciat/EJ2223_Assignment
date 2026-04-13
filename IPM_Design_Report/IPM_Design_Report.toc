@@ -1,0 +1,14 @@
+\contentsline {section}{\numberline {1}Background: Current Motor Analysis}{3}{section.1}%
+\contentsline {section}{\numberline {2}Part A: Framework Definition and Requirements}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Boundary Requirements}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}First Design Objectives}{5}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Rotor Initial Dimensional Calculation}{7}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Phase 2: Analytical Design and Rotor Parameterization}{8}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Rotor Bridge Sizing and Structural Integrity}{9}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}V-Shape Parametric Definition}{10}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Magnetic Saturation and Optimal Phase Advance}{10}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Part B: Design Methodology and Validation}{10}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Electromechanical Power Modeling}{10}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Simulation Framework}{11}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Thermal and Mechanical Analysis}{11}{section.5}%
+\contentsline {section}{\numberline {6}Conclusion}{11}{section.6}%
