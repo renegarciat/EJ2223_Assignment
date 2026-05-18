@@ -65,9 +65,9 @@ classdef ComsolInterface < handle
          cfg = ComsolInterface.applyDefaults(config, projectRootDefault);
 
          % Resolve model path early to fail fast (only for simulation runs).
-         if isempty(cfg.modelPath)
-            cfg.modelPath = ComsolInterface.resolveModelPath(cfg.projectRoot);
-         end
+         % if isempty(cfg.modelPath)
+         %    cfg.modelPath = ComsolInterface.resolveModelPath(cfg.projectRoot);
+         % end
 
          if ~isfield(cfg, 'compTag') || isempty(cfg.compTag)
             cfg.compTag = 'comp1';
@@ -794,7 +794,7 @@ classdef ComsolInterface < handle
 
    methods (Access = private)
       function ensureRawScriptPath_(obj)
-         rawScriptsPath = fullfile(obj.config.projectRoot, 'raw_code', 'MATLAB_scripts');
+         rawScriptsPath = fullfile(obj.config.projectRoot, 'MATLAB_Code');
          if exist(rawScriptsPath, 'dir') ~= 7
             error('Raw COMSOL script folder not found: %s', rawScriptsPath);
          end
