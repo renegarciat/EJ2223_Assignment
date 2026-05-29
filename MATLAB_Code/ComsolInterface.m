@@ -17,12 +17,15 @@ classdef ComsolInterface < handle
       leftMagnetPoints
       rightMagnetPoints
       tipPocketPoints
+      slotPoints
+      Iq
    end
    methods
       function obj = ComsolInterface(varargin)
          config = struct();
          geometry = [];
          materialData = MotorMaterials();
+         obj.Iq = 1000; % FIXME: Calculate Iq instead of hardcoding.
 
          % Supported call patterns:
          %   ComsolInterface()
@@ -88,6 +91,7 @@ classdef ComsolInterface < handle
          obj.leftMagnetPoints = [];
          obj.rightMagnetPoints = [];
          obj.tipPocketPoints = [];
+         obj.slotPoints = [];
          obj.materialData = ComsolInterface.applyMaterialDefaults(materialData);
 
          if ~isempty(geometry)
@@ -123,7 +127,7 @@ classdef ComsolInterface < handle
          obj.ensureRawScriptPath_();
          obj.ensureModelReady_();
 
-         draw_stator_sector(obj.model, obj.geomTag, ...
+         obj.slotPoints = draw_stator_sector(obj.model, obj.geomTag, ...
                            g.StatorInnerRadius_m, ...
                            g.StatorOuterRadius_m, ...
                            g.Airgap_m, ...
@@ -175,7 +179,11 @@ classdef ComsolInterface < handle
          end
 
          create_selections(obj.model, obj.geomTag, g.DrawOnlySector, ...
-                           obj.leftMagnetPoints, obj.rightMagnetPoints, ...
+                           g.RotorAngle_rad, ...
+                           obj.leftMagnetPoints, ...
+                           obj.rightMagnetPoints, ...
+                           obj.tipPocketPoints, ...
+                           obj.slotPoints, ...
                            g.RotorInnerRadius_m, ...
                            g.RotorOuterRadius_m, ...
                            g.StatorInnerRadius_m, ...
@@ -201,7 +209,25 @@ classdef ComsolInterface < handle
                           mats.mu_r_shaft, mats.sigma_shaft, mats.epsilon_r_shaft, ...
                           mats.mu_r_iron, mats.sigma_iron, mats.epsilon_r_iron, ...
                           mats.mu_r_air, mats.sigma_air, ...
+                          mats.mu_r_copper, mats.sigma_copper, obj.Iq, ...
                           mats.mu_r_magnets, mats.sigma_magnets, mats.Br);
+      end
+
+      function addStationaryStudy(obj)
+         obj.ensureModelReady_();
+
+         model = obj.model;
+
+         fprintf('Adding study... ');
+         std = model.study.create('std1');
+         std.create('stat', 'Stationary');
+         std.createAutoSequences('all');
+         fprintf('Done!\n');
+
+         fprintf('Evaluating torque... ');
+         fcall = model.component(obj.compTag).physics(obj.physTag).create('Force calculation', 'ForceCalculation', 2);
+         fcall.selection.named('sel_rotor');
+         fprintf('Done!\n');
       end
 
       function saveModel(obj, savePath)
@@ -368,6 +394,8 @@ classdef ComsolInterface < handle
          mats.mu_r_magnets = ComsolInterface.pickField_(materialData, 'mu_r_magnets', 1.05);
          mats.sigma_magnets = ComsolInterface.pickField_(materialData, 'sigma_magnets', 6.25e5);
          mats.Br = ComsolInterface.pickField_(materialData, 'Br', 1.3);
+         mats.mu_r_copper = ComsolInterface.pickField_(materialData, 'mu_r_copper', 1); % [-]   Relative permeability of copper
+         mats.sigma_copper = ComsolInterface.pickField_(materialData, 'sigma_copper', 5.8e7); % [S/m] Electrical conductivity of copper
       end
 
       function value = pickField_(s, fieldName, defaultValue)

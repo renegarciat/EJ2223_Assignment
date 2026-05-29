@@ -30,6 +30,9 @@ comsolInterface.drawStatorSector();
 comsolInterface.drawRotorSector();
 comsolInterface.createSelections();
 comsolInterface.defineMaterials(materials);
-% %% --- Save the model
-save_path = fullfile(pwd, 'COMSOL_models', 'motor_model.mph');
+%% --- Add stationary study
+% comsolInterface.addStationaryStudy();
+%% --- Save the model
+fprintf('Saving model...\n');save_path = fullfile(pwd, 'COMSOL_models', 'motor_model.mph');
 comsolInterface.saveModel(save_path);
+fprintf('Model saved to: %s\n', save_path);
