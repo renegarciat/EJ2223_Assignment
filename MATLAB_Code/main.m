@@ -31,5 +31,5 @@ comsolInterface.drawRotorSector();
 comsolInterface.createSelections();
 comsolInterface.defineMaterials(materials);
 % %% --- Save the model
-save_path = fullfile(pwd, 'motor_model.mph');
+save_path = fullfile(pwd, 'COMSOL_models', 'motor_model.mph');
 comsolInterface.saveModel(save_path);
