@@ -2,13 +2,10 @@ classdef MotorGeometry
 % MotorGeometry  Plain value object containing COMSOL-ready geometry inputs.
 %
 %   This class stores the physical parameters needed by the COMSOL drawing
-%   scripts:
-%     - raw_code/MATLAB_scripts/draw_stator_sector.m
-%     - raw_code/MATLAB_scripts/draw_rotor_sector.m
+%   scripts.
 %
 %   End goal:
 %   - IPMRotorSizer + EssonsSizer populate a MotorGeometry instance
-%   - COMSOLBuilder (future) consumes MotorGeometry to build/simulate
 %
 %   Units
 %   -----
@@ -25,6 +22,11 @@ classdef MotorGeometry
 		PolePairs           (1,1) double = NaN   % p   [-]
 		SlotDepth_m         (1,1) double = NaN   % slot_depth [m]
 		SlotWidth_m         (1,1) double = NaN   % slot_width [m]
+		RadialOffset_m	  	(1,1) double = 3e-3  % d_os [m]. Radial offset from Stator Inner radius to slot opening.
+		SlotRadialDepth_m   (1,1) double = 20e-3 % d_s [m]. 
+		SlotWidthInner_m    (1,1) double = 2e-3  % b_1 [m]. Slot bottom width
+		SlotWidthOuter_m    (1,1) double = 4e-3  % b_2 [m]. slot_width_outer [m]
+		ChamferRadius_m     (1,1) double = 0.5e-3% r_1 [m]. Radius of rounded slot edge
 		DrawOnlySector      (1,1) logical = true
 	end
 
