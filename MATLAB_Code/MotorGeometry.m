@@ -91,12 +91,14 @@ classdef MotorGeometry
 		RotorOuterRadius_m  (1,1) double = NaN   % D_r [m] (naming from script)
 		RotorInnerRadius_m  (1,1) double = NaN   % D_ir [m]
 		Airgap_m            (1,1) double = NaN   % air_gap [m]
-
 		MagnetLength_m      (1,1) double = NaN   % b_m [m]
 		MagnetWidth_m       (1,1) double = NaN   % h_m [m]
 		MagnetSpacing_m     (1,1) double = NaN   % w_ib [m]
 		MagnetRibHeight_m   (1,1) double = NaN   % h_ry [m]
 		MagnetAngle_rad     (1,1) double = NaN   % angle_m [rad]
+		RotorAngle_rad      (1,1) double = 10*2*pi/360% rotor_angle [rad].
+		PocketLength_m      (1,1) double = 2e-3  % w_pocket [m].
+		PocketHeight_m      (1,1) double = 1e-3  % h_pocket [m].
 	end
 
 	% =====================================================================
