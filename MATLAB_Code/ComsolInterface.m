@@ -238,6 +238,12 @@ classdef ComsolInterface < handle
          if isempty(obj.model)
             error('No COMSOL model exists to save. Call drawStatorSector/drawRotorSector first.');
          end
+
+         saveDir = fileparts(savePath);
+         if ~isempty(saveDir) && ~exist(saveDir, 'dir')
+            mkdir(saveDir);
+         end
+
          obj.model.save(savePath);
       end
 

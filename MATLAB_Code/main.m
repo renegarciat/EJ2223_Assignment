@@ -33,6 +33,7 @@ comsolInterface.defineMaterials(materials);
 %% --- Add stationary study
 % comsolInterface.addStationaryStudy();
 %% --- Save the model
-fprintf('Saving model...\n');save_path = fullfile(pwd, 'COMSOL_models', 'motor_model.mph');
+fprintf('Saving model...\n');
+save_path = fullfile(pwd, 'COMSOL_models', 'motor_model.mph');
 comsolInterface.saveModel(save_path);
 fprintf('Model saved to: %s\n', save_path);

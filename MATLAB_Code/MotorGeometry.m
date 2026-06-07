@@ -27,7 +27,7 @@ classdef MotorGeometry
 		SlotWidthInner_m    (1,1) double = 2e-3  % b_1 [m]. Slot bottom width
 		SlotWidthOuter_m    (1,1) double = 4e-3  % b_2 [m]. slot_width_outer [m]
 		ChamferRadius_m     (1,1) double = 0.5e-3% r_1 [m]. Radius of rounded slot edge
-		DrawOnlySector      (1,1) logical = true
+		DrawOnlySector      (1,1) logical = false
 	end
 
 	methods (Static)
@@ -54,7 +54,7 @@ classdef MotorGeometry
 			p = spec.Poles / 2;
 			slot_depth = essonsSizer.h_slot_m;
 			slot_width = essonsSizer.tau_s_m - essonsSizer.t_s_m;
-			draw_only = true;
+			draw_only = false;
 
 			D_r = rotorSizer.RotorOD_mm / 2000;    % mm -> m radius
 			D_ir = rotorSizer.RotorID_mm / 2000;   % mm -> m radius
@@ -114,7 +114,7 @@ classdef MotorGeometry
 				options.PolePairs           (1,1) double = NaN
 				options.SlotDepth_m         (1,1) double = NaN
 				options.SlotWidth_m         (1,1) double = NaN
-				options.DrawOnlySector      (1,1) logical = true
+				options.DrawOnlySector      (1,1) logical = false
 
 				options.RotorOuterRadius_m  (1,1) double = NaN
 				options.RotorInnerRadius_m  (1,1) double = NaN
