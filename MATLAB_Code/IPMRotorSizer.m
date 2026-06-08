@@ -60,7 +60,7 @@ classdef IPMRotorSizer < handle
 
         % Rotor geometry choices
         AlphaM          (1,1) double {mustBeInRange(AlphaM,    0.5, 0.95)} = 0.754
-        Whr_fraction    (1,1) double {mustBeInRange(Whr_fraction, 0.3, 0.8)} = 0.55
+        Whr_fraction    (1,1) double {mustBeInRange(Whr_fraction, 0.1, 0.8)} = 0.55
         Wob_mm          (1,1) double {mustBePositive}  = 0.5
         Hm_mm           (1,1) double {mustBePositive}  = 6.0
         Vtilt_deg       (1,1) double {mustBeInRange(Vtilt_deg, 45, 89)} = 78

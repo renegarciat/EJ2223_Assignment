@@ -4,7 +4,7 @@ classdef MotorMaterials
    % This class intentionally defines properties only (no methods).
 
    properties
-      mesh_size (1,1) double {mustBeFinite, mustBePositive} = 5
+      mesh_size (1,1) double {mustBeFinite, mustBePositive} = 5 % [-]   Mesh refinement level: 1 (extremely fine) to 9 (extremely coarse)
 
       mu_r_shaft (1,1) double {mustBeFinite, mustBePositive} = 1
       sigma_shaft (1,1) double {mustBeFinite, mustBeNonnegative} = 1.4e6
@@ -16,9 +16,16 @@ classdef MotorMaterials
 
       mu_r_air (1,1) double {mustBeFinite, mustBePositive} = 1
       sigma_air (1,1) double {mustBeFinite, mustBeNonnegative} = 0
+      epsilon_r_air (1,1) double {mustBeFinite, mustBeNonnegative} = 1
 
       mu_r_magnets (1,1) double {mustBeFinite, mustBePositive} = 1.05
       sigma_magnets (1,1) double {mustBeFinite, mustBeNonnegative} = 6.25e5
+      epsilon_r_magnets (1,1) double {mustBeFinite, mustBeNonnegative} = 1
       Br (1,1) double {mustBeFinite, mustBePositive} = 1.3
+
+      epsilon_r_copper  (1,1) double {mustBeFinite, mustBeNonnegative} = 1
+      mu_r_copper     (1,1) double {mustBeFinite, mustBePositive} = 1;        % [-]   Relative permeability of copper
+      sigma_copper    (1,1) double {mustBeFinite, mustBeNonnegative} = 5.8e7;    % [S/m] Electrical conductivity of copper
+
    end
 end

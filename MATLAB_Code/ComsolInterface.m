@@ -208,9 +208,9 @@ classdef ComsolInterface < handle
          define_materials(obj.model, obj.compTag, obj.physTag, g.DrawOnlySector, mats.mesh_size, ...
                           mats.mu_r_shaft, mats.sigma_shaft, mats.epsilon_r_shaft, ...
                           mats.mu_r_iron, mats.sigma_iron, mats.epsilon_r_iron, ...
-                          mats.mu_r_air, mats.sigma_air, ...
-                          mats.mu_r_copper, mats.sigma_copper, obj.Iq, ...
-                          mats.mu_r_magnets, mats.sigma_magnets, mats.Br);
+                          mats.mu_r_air, mats.sigma_air, mats.epsilon_r_air, ...
+                          mats.mu_r_copper, mats.sigma_copper, mats.epsilon_r_copper, obj.Iq, ...
+                          mats.mu_r_magnets, mats.sigma_magnets, mats.epsilon_r_magnets, mats.Br);
       end
 
       function addStationaryStudy(obj)
@@ -225,7 +225,7 @@ classdef ComsolInterface < handle
          fprintf('Done!\n');
 
          fprintf('Evaluating torque... ');
-         fcall = model.component(obj.compTag).physics(obj.physTag).create('Force calculation', 'ForceCalculation', 2);
+         fcall = model.component('comp1').physics('mf').create('force_calculation', 'ForceCalculation', 2);
          fcall.selection.named('sel_rotor');
          fprintf('Done!\n');
       end
@@ -396,12 +396,17 @@ classdef ComsolInterface < handle
 
          mats.mu_r_air = ComsolInterface.pickField_(materialData, 'mu_r_air', 1);
          mats.sigma_air = ComsolInterface.pickField_(materialData, 'sigma_air', 0);
+         mats.epsilon_r_air = ComsolInterface.pickField_(materialData, 'epsilon_r_air', 1);
 
          mats.mu_r_magnets = ComsolInterface.pickField_(materialData, 'mu_r_magnets', 1.05);
          mats.sigma_magnets = ComsolInterface.pickField_(materialData, 'sigma_magnets', 6.25e5);
+         mats.epsilon_r_magnets = ComsolInterface.pickField_(materialData, 'epsilon_r_magnets', 1);
          mats.Br = ComsolInterface.pickField_(materialData, 'Br', 1.3);
+
          mats.mu_r_copper = ComsolInterface.pickField_(materialData, 'mu_r_copper', 1); % [-]   Relative permeability of copper
          mats.sigma_copper = ComsolInterface.pickField_(materialData, 'sigma_copper', 5.8e7); % [S/m] Electrical conductivity of copper
+         mats.epsilon_r_copper = ComsolInterface.pickField_(materialData, 'epsilon_r_copper', 1);
+
       end
 
       function value = pickField_(s, fieldName, defaultValue)

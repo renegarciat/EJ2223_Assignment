@@ -58,9 +58,8 @@ function create_selections(model, geom_tag, draw_only_sector, rotor_angle, ...
     create_sel('sel_iron', 'Iron laminations', 2, [id_rotor_iron, id_stator_iron])
 
     id_shaft = make_sel_by_point('sel_shaft', 'Shaft', 2, [D_ir*cos(rotor_angle); D_ir*sin(rotor_angle)], id_rotor_iron);
-    create_sel('sel_iron_shaft', 'Iron laminations and shaft', 2, [id_rotor_iron, id_stator_iron, id_shaft])
     
-    make_sel_by_point('sel_airgap_pockets', 'Air gap and pockets', 2, [[D_r*cos(rotor_angle); D_r*sin(rotor_angle)], tip_pocket_points], id_rotor_iron);
+    id_airgap = make_sel_by_point('sel_airgap_pockets', 'Air gap and pockets', 2, [[D_r*cos(rotor_angle); D_r*sin(rotor_angle)], tip_pocket_points], id_rotor_iron);
     
     pocket_ids = make_sel_by_point('sel_pockets', 'Air pockets', 2, tip_pocket_points, id_rotor_iron);
     magnets_ids = make_sel_by_point('sel_rotor_magnets', 'Rotor magnets', 2, [squeeze(left_magnet_points(:,1,:)), squeeze(right_magnet_points(:,1,:))], id_rotor_iron);
@@ -68,6 +67,8 @@ function create_selections(model, geom_tag, draw_only_sector, rotor_angle, ...
     
     make_sel_by_point('sel_rotor_left_magnets', 'Rotor left magnets', 2, squeeze(left_magnet_points(:,1,:)), id_rotor_iron);
     make_sel_by_point('sel_rotor_right_magnets', 'Rotor right magnets', 2, squeeze(right_magnet_points(:,1,:)), id_rotor_iron);
+
+    create_sel('sel_all_without_copper', 'All the selections without the copper', 2, [id_rotor_iron, id_stator_iron, id_shaft, magnets_ids, id_airgap])
 
     n_points = size(slot_points,2);
     make_sel_by_point('sel_coils', 'Coils', 2, squeeze(slot_points(:,n_points/2,:)), id_stator_iron);
@@ -104,17 +105,20 @@ function create_selections(model, geom_tag, draw_only_sector, rotor_angle, ...
     create_sel('bnd_north_magnet_left', 'North boundaries of Left magnets', 1, squeeze(magnets_bnd(:,4)))
 
     if draw_only_sector
-        bnd_left_shaft = mphselectcoords(model, geom_tag, [D_ir*cos(rotor_angle + sector_angle), D_ir*sin(rotor_angle + sector_angle)], 'boundary');
-        bnd_right_shaft = mphselectcoords(model, geom_tag, [D_ir*cos(rotor_angle), D_ir*sin(rotor_angle)], 'boundary');
-        id_shaft_stator_bnd = setxor(bnd_left_shaft, bnd_right_shaft);
+        bnd_shaft_left = find_boundary_between_points([0, 0], [D_ir*cos(sector_angle + rotor_angle), D_ir*sin(sector_angle + rotor_angle)]);
+        bnd_shaft_right = find_boundary_between_points([0, 0], [D_ir*cos(rotor_angle), D_ir*sin(rotor_angle)]);
 
-        bnd_left_iron = mphselectcoords(model, geom_tag, [D_r*cos(rotor_angle + sector_angle), D_r*sin(rotor_angle + sector_angle)], 'boundary');
-        bnd_right_iron = mphselectcoords(model, geom_tag, [D_r*cos(rotor_angle), D_r*sin(rotor_angle)], 'boundary');
-        id_stator_airgap_bnd = setxor(bnd_left_iron, bnd_right_iron);
+        bnd_iron_stator_left = find_boundary_between_points([D_ir*cos(sector_angle + rotor_angle), D_ir*sin(sector_angle + rotor_angle)], [D_r*cos(sector_angle + rotor_angle), D_r*sin(sector_angle + rotor_angle)]);
+        bnd_iron_stator_right = find_boundary_between_points([D_ir*cos(rotor_angle), D_ir*sin(rotor_angle)], [D_r*cos(rotor_angle), D_r*sin(rotor_angle)]);
+
+        create_sel('bnd_rotor_sides', 'Outer boundaries of the rotor', 1, [bnd_shaft_left, bnd_shaft_right, bnd_iron_stator_left, bnd_iron_stator_right])
         
-        bnd_left_stator = find_boundary_between_points([D_si*cos(sector_angle), D_si*sin(sector_angle)], [D_so*cos(sector_angle), D_so*sin(sector_angle)]);
-        bnd_right_stator = find_boundary_between_points([D_si, 0], [D_so, 0]);
+        bnd_airgap_left = find_boundary_between_points([D_r*cos(sector_angle), D_r*sin(sector_angle)], [D_si*cos(sector_angle), D_si*sin(sector_angle)]);
+        bnd_airgap_right = find_boundary_between_points([D_r, 0], [D_si, 0]);
+        
+        bnd_iron_rotor_left = find_boundary_between_points([D_si*cos(sector_angle), D_si*sin(sector_angle)], [D_so*cos(sector_angle), D_so*sin(sector_angle)]);
+        bnd_iron_rotor_right = find_boundary_between_points([D_si, 0], [D_so, 0]);
 
-        create_sel('bnd_sector_sides', 'Outer boundaries of the sector sides', 1, [id_shaft_stator_bnd, id_stator_airgap_bnd, bnd_left_stator, bnd_right_stator])
+        create_sel('bnd_stator_sides', 'Outer boundaries of the stator', 1, [bnd_airgap_left, bnd_airgap_right, bnd_iron_rotor_left, bnd_iron_rotor_right])
     end
 end
