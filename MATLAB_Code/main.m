@@ -40,10 +40,29 @@ comsolInterface.drawStatorSector();
 comsolInterface.drawRotorSector();
 comsolInterface.createSelections();
 comsolInterface.defineMaterials(materials);
+
 %% --- Add stationary study
 comsolInterface.addStationaryStudy();
+
+%% --- Run stationary study
+comsolInterface.runStudy();
+
 %% --- Save the model
 fprintf('Saving model...\n');
 save_path = fullfile(pwd, 'COMSOL_models', 'motor_model.mph');
 comsolInterface.saveModel(save_path);
 fprintf('Model saved to: %s\n', save_path);
+%% --- Extract the Results
+% Pull the torque array into MATLAB workspace for plotting or saving
+torque_results = comsolInterface.extractTorqueFromTable();
+return;
+
+% Optional: Plot the torque if you did a parametric sweep of the rotor angle
+if length(torque_results) > 1
+    figure('Name', 'Motor Torque Output');
+    plot(torque_results, '-o', 'LineWidth', 2);
+    title('Axial Torque over Sweep');
+    xlabel('Step');
+    ylabel('Torque (Nm)');
+    grid on;
+end

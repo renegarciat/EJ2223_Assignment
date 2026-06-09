@@ -120,7 +120,7 @@ i=0;
 slot_names = cell(2, Qs);
 slot_points = zeros(2, 4 * NUMBER_OF_POINTS_IN_ROUNDED_CORNER, Qs);
 
-for alpha_slot = 0:slot_pitch:2*pi-slot_pitch
+for alpha_slot = slot_pitch/2:slot_pitch:2*pi+slot_pitch/2
     i=i+1;
     slot_names{1,i} = sprintf('slot_%d_airpath', i);
     slot_names{2,i} = sprintf('dif_slot_%d', i);

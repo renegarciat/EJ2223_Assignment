@@ -215,19 +215,77 @@ classdef ComsolInterface < handle
 
       function addStationaryStudy(obj)
          obj.ensureModelReady_();
-
          model = obj.model;
 
          fprintf('Adding study... ');
-         std = model.study.create('std1');
-         std.create('stat', 'Stationary');
-         std.createAutoSequences('all');
+         % Create study only if it doesn't already exist to avoid errors
+         if isempty(find(strcmp(model.study.tags, 'std1'), 1))
+            std = model.study.create('std1');
+            std.create('stat', 'Stationary');
+            std.createAutoSequences('all');
+         end
          fprintf('Done!\n');
 
-         fprintf('Evaluating torque... ');
-         fcall = model.component('comp1').physics('mf').create('force_calculation', 'ForceCalculation', 2);
-         fcall.selection.named('sel_rotor');
+         fprintf('Adding Force Calculation node... ');
+         fcall_name = 'fc1'; 
+         
+         % Get the physics interface
+         phys = model.component(obj.compTag).physics(obj.physTag);
+         
+         % INSTEAD OF .has(), try to get the feature. If it fails, create it.
+         try
+            fcall = phys.feature(fcall_name);
+         catch
+            % Feature does not exist, so we create it
+            fcall = phys.create(fcall_name, 'ForceCalculation', 2);
+         end
+         
+         % Now configure the feature
+         fcall.selection.named('sel_rotor'); 
+         fcall.set('TorqueAxis', [0, 0, 1]);
          fprintf('Done!\n');
+      end
+
+   %% --- Study Execution and Data Extraction ---
+      function runStudy(obj)
+        % RUNSTUDY Executes the default study node
+        fprintf('Running the COMSOL study... (This may take a moment)\n');
+
+        try
+            obj.model.study('std1').run();
+            fprintf('Study completed successfully.\n');
+        catch ME
+            fprintf('Error: The simulation failed to converge or run.\n');
+            rethrow(ME);
+        end
+      end
+
+      function torqueData = extractTorqueFromTable(obj)
+        % EXTRACTTORQUEFROMTABLE Retrieves the axial torque results
+        fprintf('Extracting torque data from solver...\n');
+        
+        % Dynamically construct the variable name based on your physics tag
+        % Since we named the force calculation node 'fc1', COMSOL generates 'physTag.Tax_1'
+        torqueVarName = sprintf('%s.Tax_1', obj.physTag);
+        
+        try
+            % Pull the global expression directly from the dataset
+            torqueData = mphglobal(obj.model, torqueVarName);
+            
+            % Quick Post-Processing for your command window
+            avgTorque = mean(torqueData);
+            fprintf('  -> Average Torque: %.3f Nm\n', avgTorque);
+            
+            % If you ran a sweep (multiple angles/steps), calculate ripple
+            if length(torqueData) > 1
+                ripple = (max(torqueData) - min(torqueData)) / avgTorque * 100;
+                fprintf('  -> Torque Ripple: %.2f%%\n', ripple);
+            end
+            
+        catch ME
+            warning('Failed to evaluate "%s". Make sure the study ran successfully and the "sel_rotor" selection contains valid geometry.', torqueVarName);
+            rethrow(ME);
+        end
       end
 
       function saveModel(obj, savePath)
@@ -757,63 +815,63 @@ classdef ComsolInterface < handle
          end
       end
 
-      function runStudy(model, studyTag)
-         try
-            model.study(studyTag).run;
-         catch ME
-            studyTags = ComsolInterface.safeTags(@() model.study.tags);
-            if isempty(studyTags)
-               hint = 'Could not list study tags. Open the model and confirm the study tag.';
-            else
-               hint = sprintf('Available studies: %s', strjoin(studyTags, ', '));
-            end
-            error('Failed running study "%s". %s\nOriginal error: %s', studyTag, hint, ME.message);
-         end
-      end
+      % function runStudy(model, studyTag)
+      %    try
+      %       model.study(studyTag).run;
+      %    catch ME
+      %       studyTags = ComsolInterface.safeTags(@() model.study.tags);
+      %       if isempty(studyTags)
+      %          hint = 'Could not list study tags. Open the model and confirm the study tag.';
+      %       else
+      %          hint = sprintf('Available studies: %s', strjoin(studyTags, ', '));
+      %       end
+      %       error('Failed running study "%s". %s\nOriginal error: %s', studyTag, hint, ME.message);
+      %    end
+      % end
 
-      function [t, torque] = extractTorqueFromTable(model, tableTag)
-         try
-            tbl = mphtable(model, tableTag);
-         catch ME
-            tableTags = ComsolInterface.safeTags(@() model.result.table.tags);
-            if isempty(tableTags)
-               hint = 'Could not list result tables. Create a Results -> Table with time and torque.';
-            else
-               hint = sprintf('Available tables: %s', strjoin(tableTags, ', '));
-            end
-            error('Failed reading results table "%s". %s\nOriginal error: %s', tableTag, hint, ME.message);
-         end
+      % function [t, torque] = extractTorqueFromTable(model, tableTag)
+      %    try
+      %       tbl = mphtable(model, tableTag);
+      %    catch ME
+      %       tableTags = ComsolInterface.safeTags(@() model.result.table.tags);
+      %       if isempty(tableTags)
+      %          hint = 'Could not list result tables. Create a Results -> Table with time and torque.';
+      %       else
+      %          hint = sprintf('Available tables: %s', strjoin(tableTags, ', '));
+      %       end
+      %       error('Failed reading results table "%s". %s\nOriginal error: %s', tableTag, hint, ME.message);
+      %    end
 
-         if ~isfield(tbl, 'data') || isempty(tbl.data) || size(tbl.data, 2) < 2
-            error('Table "%s" did not contain numeric data with at least 2 columns.', tableTag);
-         end
+      %    if ~isfield(tbl, 'data') || isempty(tbl.data) || size(tbl.data, 2) < 2
+      %       error('Table "%s" did not contain numeric data with at least 2 columns.', tableTag);
+      %    end
 
-         timeCol = 1;
-         torqueCol = 2;
+      %    timeCol = 1;
+      %    torqueCol = 2;
 
-         headers = {};
-         if isfield(tbl, 'colheaders')
-            headers = tbl.colheaders;
-         end
-         if isstring(headers)
-            headers = cellstr(headers);
-         end
+      %    headers = {};
+      %    if isfield(tbl, 'colheaders')
+      %       headers = tbl.colheaders;
+      %    end
+      %    if isstring(headers)
+      %       headers = cellstr(headers);
+      %    end
 
-         if iscell(headers) && ~isempty(headers)
-            lowerHeaders = lower(strtrim(headers));
-            idxTime = find(contains(lowerHeaders, 'time') | strcmp(lowerHeaders, 't'), 1, 'first');
-            idxTorque = find(contains(lowerHeaders, 'torque') | contains(lowerHeaders, 'tem') | contains(lowerHeaders, 'mz') | contains(lowerHeaders, 'tz'), 1, 'first');
-            if ~isempty(idxTime)
-               timeCol = idxTime;
-            end
-            if ~isempty(idxTorque)
-               torqueCol = idxTorque;
-            end
-         end
+      %    if iscell(headers) && ~isempty(headers)
+      %       lowerHeaders = lower(strtrim(headers));
+      %       idxTime = find(contains(lowerHeaders, 'time') | strcmp(lowerHeaders, 't'), 1, 'first');
+      %       idxTorque = find(contains(lowerHeaders, 'torque') | contains(lowerHeaders, 'tem') | contains(lowerHeaders, 'mz') | contains(lowerHeaders, 'tz'), 1, 'first');
+      %       if ~isempty(idxTime)
+      %          timeCol = idxTime;
+      %       end
+      %       if ~isempty(idxTorque)
+      %          torqueCol = idxTorque;
+      %       end
+      %    end
 
-         t = tbl.data(:, timeCol);
-         torque = tbl.data(:, torqueCol);
-      end
+      %    t = tbl.data(:, timeCol);
+      %    torque = tbl.data(:, torqueCol);
+      % end
 
       function tags = safeTags(getTagsFn)
          try
