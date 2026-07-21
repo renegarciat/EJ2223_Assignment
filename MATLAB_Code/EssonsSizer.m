@@ -1,8 +1,7 @@
 classdef EssonsSizer < handle
 % EssonsSizer  Esson sizing estimate (class-based port of EssonsEstimation).
 %
-%   Provides the same computations as EssonsEstimation.m, but packaged as a
-%   handle class with a solve()/summary() workflow similar to IPMRotorSizer.
+%   Provides the same computations as EssonsEstimation.m
 %
 %   Usage
 %   -----

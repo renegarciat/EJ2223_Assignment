@@ -5,8 +5,8 @@ clear; clc;
 % Desired torque at corner speed
 torque_Nm = 7; % [Nm] 
 cornerSpeed_rpm = 10000; % [rpm]
-maxSpeed_rpm = 13500; % [rpm] % Approx. 35% higher than corner speed
-vdcLink_V = 334; % [V]
+maxSpeed_rpm = 12000; % [rpm] % Approx. 35% higher than corner speed
+vdcLink_V = 515; % [V] %Changed!
 poles = 8;
 slots = 12;
 airgap_mm = 1; % [mm]
@@ -55,7 +55,6 @@ fprintf('Model saved to: %s\n', save_path);
 %% --- Extract the Results
 % Pull the torque array into MATLAB workspace for plotting or saving
 torque_results = comsolInterface.extractTorqueFromTable();
-return;
 
 % Optional: Plot the torque if you did a parametric sweep of the rotor angle
 if length(torque_results) > 1

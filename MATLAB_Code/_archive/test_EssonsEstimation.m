@@ -13,7 +13,7 @@ function EssonsTest()
     D_STATOR_MAX = 120e-3 - (2 * coolingJacket_m); % [m] Max stator OD
 
     % Targets
-    TORQUE_MAX = 7; % [Nm] Changed to 18 Nm based on your clipping requirement!
+    TORQUE_MAX = 7; % [Nm] Changed to 18 Nm based on clipping requirement!
     AIR_GAP = 0.7e-3; % [m] Assumption!
     C_0 = 50000; % [W*s/m^3] Output Coefficient
     K = L_MAX / D_ROTOR_MAX; % Aspect Ratio

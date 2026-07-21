@@ -542,7 +542,7 @@ dims.E_c_Vrms   = E_c;           % Phase back-EMF                [Vrms]
 
 % ---- Print summary ----
 fprintf('=== COMSOL Dimensions Summary ===\n');
-fprintf('  Stack length      ℓ   = %.2f mm\n', dims.ell_mm);
+fprintf('  Stack length      l   = %.2f mm\n', dims.ell_mm);
 fprintf('  Stator bore       D   = %.2f mm\n', dims.D_mm);
 fprintf('  Stator OD         Des = %.2f mm\n', dims.D_es_mm);
 fprintf('  Rotor OD          Dr  = %.2f mm\n', dims.D_r_mm);

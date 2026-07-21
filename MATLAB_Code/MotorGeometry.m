@@ -28,6 +28,8 @@ classdef MotorGeometry
 		SlotWidthOuter_m    (1,1) double = 4e-3  % b_2 [m]. slot_width_outer [m]
 		ChamferRadius_m     (1,1) double = 0.5e-3% r_1 [m]. Radius of rounded slot edge
 		DrawOnlySector      (1,1) logical = false
+		Id_A                (1,1) double = NaN   % direct-axis current (for logging)
+		Iq_A                (1,1) double = NaN   % quadrature
 	end
 
 	methods (Static)
@@ -64,6 +66,8 @@ classdef MotorGeometry
 			w_ib = rotorSizer.Wib_mm / 1000;      % mm -> m
 			h_ry = rotorSizer.Hry_mm / 1000;      % mm -> m
 			angle_m = rotorSizer.Vtilt_deg * pi/180;
+			Iq_A = rotorSizer.Iq_A;
+			Id_A = rotorSizer.Id_A;
 
 			obj = MotorGeometry( ...
 				StatorInnerRadius_m = r_si, ...
@@ -80,7 +84,8 @@ classdef MotorGeometry
 				MagnetWidth_m = h_m, ...
 				MagnetSpacing_m = w_ib, ...
 				MagnetRibHeight_m = h_ry, ...
-				MagnetAngle_rad = angle_m ...
+				MagnetAngle_rad = angle_m, ...
+				Iq_A = Iq_A, Id_A = Id_A ...
 				);
 		end
 	end
@@ -124,6 +129,8 @@ classdef MotorGeometry
 				options.MagnetSpacing_m     (1,1) double = NaN
 				options.MagnetRibHeight_m   (1,1) double = NaN
 				options.MagnetAngle_rad     (1,1) double = NaN
+				options.Id_A                (1,1) double = NaN
+				options.Iq_A                (1,1) double = NaN
 			end
 
 			obj.StatorInnerRadius_m = options.StatorInnerRadius_m;
@@ -142,6 +149,8 @@ classdef MotorGeometry
 			obj.MagnetSpacing_m     = options.MagnetSpacing_m;
 			obj.MagnetRibHeight_m   = options.MagnetRibHeight_m;
 			obj.MagnetAngle_rad     = options.MagnetAngle_rad;
+			obj.Id_A                = options.Id_A;
+			obj.Iq_A                = options.Iq_A;
 		end
 
 		function s = toStruct(obj)
@@ -166,6 +175,8 @@ classdef MotorGeometry
 			s.MagnetSpacing_m     = obj.MagnetSpacing_m;
 			s.MagnetRibHeight_m   = obj.MagnetRibHeight_m;
 			s.MagnetAngle_rad     = obj.MagnetAngle_rad;
+			s.Id_A                = obj.Id_A;
+			s.Iq_A                = obj.Iq_A;
 		end
 	end
 end

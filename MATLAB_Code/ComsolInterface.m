@@ -18,15 +18,13 @@ classdef ComsolInterface < handle
       rightMagnetPoints
       tipPocketPoints
       slotPoints
-      Iq
    end
+
    methods
       function obj = ComsolInterface(varargin)
          config = struct();
          geometry = [];
          materialData = MotorMaterials();
-         obj.Iq = 1000; % FIXME: Calculate Iq instead of hardcoding.
-
          % Supported call patterns:
          %   ComsolInterface()
          %   ComsolInterface(config)
@@ -209,7 +207,7 @@ classdef ComsolInterface < handle
                           mats.mu_r_shaft, mats.sigma_shaft, mats.epsilon_r_shaft, ...
                           mats.mu_r_iron, mats.sigma_iron, mats.epsilon_r_iron, ...
                           mats.mu_r_air, mats.sigma_air, mats.epsilon_r_air, ...
-                          mats.mu_r_copper, mats.sigma_copper, mats.epsilon_r_copper, obj.Iq, ...
+                          mats.mu_r_copper, mats.sigma_copper, mats.epsilon_r_copper, g.Iq_A, ...
                           mats.mu_r_magnets, mats.sigma_magnets, mats.epsilon_r_magnets, mats.Br);
       end
 

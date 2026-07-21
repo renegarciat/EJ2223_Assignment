@@ -46,7 +46,7 @@ classdef IPMRotorSizer < handle
 %     StackLength_mm, GammaOpt_deg, SpecificTorque_kNmm
 %     EtaPhi_c, SigmaS_c
 %   Electrical parameters:
-%     Cq, Ld_mH, Lq_mH, PsiPM1_Wb
+%     Cq, Ld_mH, Lq_mH, PsiPM1_Wb, Id, Iq
 %     LambdaIs_uHm
 %   Convergence:
 %     Converged, Iterations
@@ -123,6 +123,8 @@ classdef IPMRotorSizer < handle
         Ld_mH            (1,1) double = NaN   % d-axis synchronous inductance
         Lq_mH            (1,1) double = NaN   % q-axis synchronous inductance (corner)
         PsiPM1_Wb        (1,1) double = NaN   % PM flux linkage [Wb rms]
+        Id_A             (1,1) double = NaN   % direct-axis current
+        Iq_A             (1,1) double = NaN   % quadrature-axis current
 
         % --- Convergence ---
         Converged        (1,1) logical = false
@@ -310,6 +312,8 @@ classdef IPMRotorSizer < handle
             fprintf('    %-28s %7.4f mH\n', 'L_d:', obj.Ld_mH);
             fprintf('    %-28s %7.4f mH\n', 'L_q (corner):', obj.Lq_mH);
             fprintf('    %-28s %7.5f Wb\n', 'Psi_PM1:', obj.PsiPM1_Wb);
+            fprintf('    %-28s %7.2f A\n', 'I_d (corner):', obj.Id_A);
+            fprintf('    %-28s %7.2f A\n', 'I_q (corner):', obj.Iq_A);
             fprintf('%s\n\n', repmat('-', 1, 60));
         end
 
@@ -593,6 +597,7 @@ classdef IPMRotorSizer < handle
             % Updates the iterative parameters Cd, SigmaAnis, RhoBtS, RhoHteG.
             s       = obj.spec_;
             p       = s.Poles;
+            torque_Nm = s.Torque_Nm;
             mu0     = IPMRotorSizer.MU0;
             k_w     = obj.WindingFactor;
             k_C     = obj.CarterFactor;
@@ -660,6 +665,8 @@ classdef IPMRotorSizer < handle
 
             % PM flux linkage estimate — Eq. (48) at corner
             PsiPM1 = k_w * Uc_est * phi_g1o * obj.EtaPhi_c / (2*sqrt(2)) * ell_m;
+            Iq = torque_Nm / (1.5 * p/2 * PsiPM1); % Simplified
+            Id = 0; % Assuming no field weakening for the base torque point
 
             % ---- Update iterative parameters ----
             % RhoBtS: from tooth width sizing
@@ -684,6 +691,8 @@ classdef IPMRotorSizer < handle
             obj.Ld_mH    = L_pdo * 1e3;
             obj.Lq_mH    = L_pq_c * 1e3;
             obj.PsiPM1_Wb = PsiPM1;
+            obj.Iq_A = Iq;
+            obj.Id_A = Id;
         end
 
     end % private compute methods
