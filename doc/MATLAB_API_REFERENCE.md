@@ -8,7 +8,7 @@ This document describes the MATLAB class APIs under `MATLAB_Code/`.
 
 The diagram shows the typical workflow:
 1. **MotorSpec** holds user inputs (torque, speed, voltages, topology).
-2. **EssonsSizer** and **IPMRotorSizer** run in parallel to compute stator and rotor geometries from the spec.
+2. **EssonsSizer** and **IPMRotorSizer** run in parallel to compute stator and rotor geometries from the spec. `IPMRotorSizer` additionally sizes the stator winding/slot and checks the rotor bridge for structural safety once the design converges.
 3. **MotorGeometry** collects all geometric dimensions (value object, copyable).
 4. **COMSOLBuilder** (or `ComsolInterface`) uses the geometry to draw 2D sector model, define materials, and set up physics.
 5. **ResultsAnalyser** extracts torque, flux, losses from FEM results for performance validation.
@@ -75,7 +75,7 @@ spec = MotorSpec(torque_Nm, cornerSpeed_rpm, maxSpeed_rpm, vdcLink_V, ...
 
 - Topology/geometry: `Phases`, `SlotOpening_mm`, `Airgap_mm`
 - Magnet: `MuRec`, `kBr_pctPerC`, `PMTemp_C`
-- Targets: `Bg1_T`, `Bt_T`, `Bc_T`
+- Targets: `Bg1_T`, `Bt_T`, `Bc_T` (`Bt_T`/`Bc_T` default to values back-solved from the reference paper's own worked example, not generic engineering defaults)
 - Loading: `LinearCurrentDensity_Am`, `CurrentDensity_Amm2`, `CopperFillFactor`
 - Process/model: `StackingFactor`, `IronFillFactor`, `AspectRatio`, `EfficiencyEstimate`, `PowerFactor`
 
@@ -149,12 +149,15 @@ Analytical rotor sizing for V-shape IPM motors. Runs an iterative loop to conver
 sizer = IPMRotorSizer(spec);
 % or override rotor design choices
 sizer = IPMRotorSizer(spec, AlphaM=0.76, Hm_mm=5.5, Vtilt_deg=75);
+% or pin the stator bore directly instead of deriving it from EssonsSizer
+% (see bug_002.md), and/or supply custom material properties
+sizer = IPMRotorSizer(spec, StatorBore_mm=160, Materials=MotorMaterials());
 ```
 
 ### Configuration properties (design choices)
 
 - Geometry choices: `AlphaM`, `Whr_fraction`, `Wob_mm`, `Hm_mm`, `Vtilt_deg`, `Wib_mm`, `HryFraction`
-- Winding: `WindingFactor`
+- Winding: `WindingFactor`, `Has_mm`, `WireClearance_mm`, `RhoEV`
 - Iterative parameters (updated by `solve()`): `RhoBtS`, `RhoHteG`, `SigmaAnis`, `Cd`
 - Solver settings: `MaxIterations`, `Tolerance`
 
@@ -163,6 +166,8 @@ sizer = IPMRotorSizer(spec, AlphaM=0.76, Hm_mm=5.5, Vtilt_deg=75);
 - Rotor geometry: `RotorOD_mm`, `RotorID_mm`, `RotorPolePitch_mm`, `Hob_mm`, `Zeta_deg`, `Hib_mm`, `Hhr_mm`, `Dps_mm`, `Bm_mm`, `Whr_mm`, `Hry_mm`, etc.
 - Saturation/no-load: `CarterFactor`, `PhiGo_Wbm`, `Bg1o_T`, `PhiG1o_Wbm`
 - Torque sizing: `StackLength_mm`, `GammaOpt_deg`, `SpecificTorque_kNmm`, `EtaPhi_c`, `SigmaS_c`
+- Winding & stator core sizing: `ConductorsInSeries`, `ConductorsInSlot`, `PhaseCurrent_A`, `NumStrands`, `WireDiameter_mm`, `ToothWidth_mm`, `SlotWidthInner_mm`, `SlotWidthOuter_mm`, `SlotHeight_mm`, `SlotArea_mm2`, `ToothEquivalentHeight_mm`, `StatorYokeHeight_mm`, `StatorOD_mm` — the actual conductor count/gauge and slot/yoke/OD dimensions a FEM cross-section needs, derived from the corner-point EMF and current density.
+- Structural check: `FMaxSpecific_Nm`, `SigmaIbIdeal_MPa`, `SigmaIb_MPa`, `SigmaIbRatio`, `BridgeSafe` — rotor inner-bridge centrifugal stress at max speed vs. the lamination yield strength; `BridgeSafe` is `true` when `SigmaIbRatio < 1`. See [rotor_bridge_stress_notes.md](rotor_bridge_stress_notes.md).
 - Electrical: `Cq`, `LambdaIs_uHm`, `Ld_mH`, `Lq_mH`, `PsiPM1_Wb`
 - Convergence: `Converged`, `Iterations`
 
@@ -181,7 +186,9 @@ sizer = IPMRotorSizer(spec, AlphaM=0.76, Hm_mm=5.5, Vtilt_deg=75);
 
 ### Notes / limitations
 
-- `RhoHteG` is not fully updated by the internal stator/winding model; it is seeded and left largely constant.
+- `solve()` iterates rotor geometry → saturation model → torque sizing → stator winding/core sizing → electrical parameters, until `RhoBtS`, `RhoHteG`, `SigmaAnis`, `Cd` stop changing (or `MaxIterations` is hit); the bridge stress check then runs once on the converged design.
+- The reaction coefficients `Cd`, `Cq`, `SigmaAnis` are closed-form integrals of the paper's flux distributions and match its reference values to <2%.
+- The no-load saturation/leakage stage (`Bg1o_T`, `PhiGo_Wbm`) is still a calibrated approximation, ~10-20% off the paper's reference values; since `StackLength_mm` and the torque results derive from it, they inherit that gap. See `MATLAB_Code/tests/test_IPMRotorSizer.m`'s diagnostics for current numbers.
 - Iron saturation is handled via a built-in BH curve interpolant; PM flux saturation uses a smooth fit approximation.
 
 ---
@@ -236,6 +243,8 @@ mats.mu_r_iron = 4000;   % optional override
 - Iron: `mu_r_iron`, `sigma_iron`, `epsilon_r_iron`
 - Air: `mu_r_air`, `sigma_air`
 - Magnets: `mu_r_magnets`, `sigma_magnets`, `Br`
+- Copper: `mu_r_copper`, `sigma_copper`, `epsilon_r_copper`
+- Mechanical (used by `IPMRotorSizer`'s rotor-bridge check, not by COMSOL): `rho_lam`, `sigma_y_lam` (lamination density/yield strength), `rho_pm` (magnet density), `Kt_ib` (bridge stress concentration factor). Defaults are datasheet values for the paper's named grades (M235-35A lamination, N48UZ-SGR magnet) — see [rotor_bridge_stress_notes.md](rotor_bridge_stress_notes.md).
 
 ---
 
