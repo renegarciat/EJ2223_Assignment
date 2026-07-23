@@ -48,10 +48,12 @@ classdef IPMRotorSizer < handle
 %   Electrical parameters:
 %     Cq, Ld_mH, Lq_mH, PsiPM1_Wb, Id, Iq
 %     LambdaIs_uHm
+%   Rotor bridge stress check (paper Section IV, eqs. 19-22):
+%     FMaxSpecific_Nm, SigmaIbIdeal_MPa, SigmaIb_MPa, SigmaIbRatio, BridgeSafe
 %   Convergence:
 %     Converged, Iterations
 %
-%   See also: MotorSpec, EssonSizer, MotorGeometry
+%   See also: MotorSpec, EssonSizer, MotorGeometry, MotorMaterials
 
     % =====================================================================
     % Public — rotor design choices (not in MotorSpec)
@@ -80,6 +82,24 @@ classdef IPMRotorSizer < handle
         MaxIterations   (1,1) double {mustBePositive, mustBeInteger} = 20
         Tolerance       (1,1) double {mustBePositive} = 1e-4
 
+    end
+
+    % =====================================================================
+    % Public — stator bore actually used (from EssonsSizer, or overridden)
+    % =====================================================================
+    properties (SetAccess = private)
+        StatorBore_mm     (1,1) double = NaN   % D — from EssonsSizer, or the constructor override
+    end
+
+    % =====================================================================
+    % Public — rotor bridge stress check results (eqs. 19-22)
+    % =====================================================================
+    properties (SetAccess = private)
+        FMaxSpecific_Nm   (1,1) double = NaN   % f_max, per unit stack length [N/m]
+        SigmaIbIdeal_MPa  (1,1) double = NaN   % sigma_ib.i (no concentration factor)
+        SigmaIb_MPa       (1,1) double = NaN   % sigma_ib = Kt * sigma_ib.i
+        SigmaIbRatio      (1,1) double = NaN   % sigma_ib / sigma_y_lam  (must be < 1)
+        BridgeSafe        (1,1) logical = false
     end
 
     % =====================================================================
@@ -137,10 +157,13 @@ classdef IPMRotorSizer < handle
     % =====================================================================
     properties (Access = private)
         spec_           % MotorSpec handle
+        materials_      % MotorMaterials handle (mechanical properties for bridge check)
         Hfe_interp_     % griddedInterpolant for M235-35A BH curve
 
-        % Cached derived geometry (computed from EssonsSizer at solve() start)
-        statorBore_mm_  (1,1) double = NaN
+        % Cached derived geometry (computed from EssonsSizer at solve() start,
+        % unless statorBoreOverride_mm_ is set — see constructor StatorBore_mm)
+        statorBore_mm_          (1,1) double = NaN
+        statorBoreOverride_mm_  (1,1) double = NaN
     end
 
     % =====================================================================
@@ -149,14 +172,26 @@ classdef IPMRotorSizer < handle
     properties (Constant, Access = private)
         MU0 = 4*pi*1e-7   % [H/m]
 
-        % M235-35A BH curve — extended to high B so that incremental
-        % permeability → mu0 at saturation (paper Fig. 2).
-        BFE_DATA = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, ...
+        % M235-35A BH curve — derived from the paper's own Fig. 2
+        % (references/fig_2_ricca.png), not a generic manufacturer
+        % datasheet. The paper only plots relative permeability
+        % mu_fe,pu(B) = mu_fe/mu0 = B/(mu0*H_fe) (dimensionless, log
+        % y-axis), not H_fe in A/m. We pixel-traced (B, mu_fe,pu) pairs
+        % off the screenshot (calibrated against the plot's axis tick
+        % labels; see MATLAB_Code/plot_bh_curve.m for the 1:1 comparison
+        % plot), then inverted point-by-point:
+        %   H_fe = B / (mu0 * mu_fe,pu)
+        % to get HFE_DATA below in the A/m units this class's Hfe(B)
+        % interpolant needs. B=0 forced to H=0 as the physical anchor.
+        % Cross-check: at B=3.0T, H_fe=684000 A/m back-converts to
+        % mu_fe,pu = 3.0/(mu0*684000) = 3.49, matching the paper's
+        % traced curve endpoint.
+        BFE_DATA = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, ...
                     1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, ...
-                    2.0, 2.1, 2.2, 2.3, 2.5, 3.0]        % [T]
-        HFE_DATA = [0, 22, 30, 37, 42, 47, 53, 60, 69, 82, ...
-                    100, 125, 165, 235, 380, 720, 1400, 2600, 4200, 6200, ...
-                    8800, 12000, 16000, 21000, 33000, 70000] % [A/m]
+                    2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0]  % [T]
+        HFE_DATA = [0, 36, 47, 55, 63, 70, 78, 86, 95, 106, ...
+                    122, 147, 184, 258, 473, 1230, 3110, 6350, 13000, 25500, ...
+                    46000, 76700, 117000, 170000, 233000, 301000, 373000, 451000, 531000, 606000, 684000] % [A/m]
     end
 
     % =====================================================================
@@ -169,8 +204,17 @@ classdef IPMRotorSizer < handle
             %
             %   sizer = IPMRotorSizer(spec)
             %   sizer = IPMRotorSizer(spec, AlphaM=0.76, Hm_mm=5.5, ...)
+            %   sizer = IPMRotorSizer(spec, Materials=myMaterials)
+            %   sizer = IPMRotorSizer(spec, StatorBore_mm=160)
+            %
+            %   StatorBore_mm, if given, is used directly instead of
+            %   deriving the bore from EssonsSizer — needed to reproduce a
+            %   worked example (e.g. the paper's Fig. 4 point, D=160mm)
+            %   where the bore is a given input, not an Esson-rule output.
             arguments
                 spec                    MotorSpec
+                options.Materials       MotorMaterials = MotorMaterials()
+                options.StatorBore_mm   (1,1) double = NaN
                 options.AlphaM          (1,1) double = 0.754
                 options.Whr_fraction    (1,1) double = 0.55
                 options.Wob_mm          (1,1) double = 0.5
@@ -187,7 +231,9 @@ classdef IPMRotorSizer < handle
                 options.Tolerance       (1,1) double = 1e-4
             end
 
-            obj.spec_ = spec;
+            obj.spec_                   = spec;
+            obj.materials_              = options.Materials;
+            obj.statorBoreOverride_mm_  = options.StatorBore_mm;
 
             % Apply optional overrides
             obj.AlphaM        = options.AlphaM;
@@ -224,10 +270,16 @@ classdef IPMRotorSizer < handle
             %   RhoBtS, RhoHteG, SigmaAnis, Cd.
             %   On exit, Converged = true and all result properties are set.
 
-            % Derive the stator bore from Esson sizing (not a user input).
-            ess = EssonsSizer(obj.spec_);
-            ess.solve();
-            obj.statorBore_mm_ = ess.StatorBore_mm;
+            % Derive the stator bore from Esson sizing, unless the caller
+            % supplied an explicit override (e.g. to match a worked example).
+            if isnan(obj.statorBoreOverride_mm_)
+                ess = EssonsSizer(obj.spec_);
+                ess.solve();
+                obj.statorBore_mm_ = ess.StatorBore_mm;
+            else
+                obj.statorBore_mm_ = obj.statorBoreOverride_mm_;
+            end
+            obj.StatorBore_mm = obj.statorBore_mm_;
 
             obj.Converged  = false;
             obj.Iterations = 0;
@@ -259,6 +311,10 @@ classdef IPMRotorSizer < handle
                     'solve() did not converge in %d iterations (relErr=%.2e).', ...
                     obj.MaxIterations, relErr);
             end
+
+            % Rotor bridge stress check — not part of the convergence loop
+            % (geometry-only, doesn't feed back into RhoBtS/RhoHteG/etc.)
+            obj.computeBridgeStress_();
         end
 
         function summary(obj)
@@ -269,6 +325,7 @@ classdef IPMRotorSizer < handle
             fprintf('%s\n', repmat('-', 1, 60));
 
             fprintf('\n  Rotor geometry\n');
+            fprintf('    %-28s %7.2f mm\n',    'Stator bore D:',    obj.StatorBore_mm);
             fprintf('    %-28s %7.2f mm\n',    'Rotor OD  D_r:',    obj.RotorOD_mm);
             fprintf('    %-28s %7.2f mm\n',    'Rotor ID  D_ir:',   obj.RotorID_mm);
             fprintf('    %-28s %7.3f mm\n',    'Rotor pole pitch:',  obj.RotorPolePitch_mm);
@@ -314,6 +371,13 @@ classdef IPMRotorSizer < handle
             fprintf('    %-28s %7.5f Wb\n', 'Psi_PM1:', obj.PsiPM1_Wb);
             fprintf('    %-28s %7.2f A\n', 'I_d (corner):', obj.Id_A);
             fprintf('    %-28s %7.2f A\n', 'I_q (corner):', obj.Iq_A);
+
+            fprintf('\n  Rotor bridge stress check (n_max, eqs. 19-22)\n');
+            fprintf('    %-28s %7.2f N/m\n', 'f_max:',        obj.FMaxSpecific_Nm);
+            fprintf('    %-28s %7.2f MPa\n', 'sigma_ib.i:',   obj.SigmaIbIdeal_MPa);
+            fprintf('    %-28s %7.2f MPa\n', 'sigma_ib:',     obj.SigmaIb_MPa);
+            fprintf('    %-28s %7.3f  (safe=%d)\n', 'sigma_ib/sigma_y_lam:', ...
+                obj.SigmaIbRatio, obj.BridgeSafe);
             fprintf('%s\n\n', repmat('-', 1, 60));
         end
 
@@ -322,6 +386,7 @@ classdef IPMRotorSizer < handle
             %   Passes cleanly to EssonSizer and MotorGeometry constructors.
             obj.requireSolved_('toStruct');
             s = struct( ...
+                'StatorBore_mm',       obj.StatorBore_mm, ...
                 'RotorOD_mm',          obj.RotorOD_mm, ...
                 'RotorID_mm',          obj.RotorID_mm, ...
                 'RotorPolePitch_mm',   obj.RotorPolePitch_mm, ...
@@ -359,6 +424,11 @@ classdef IPMRotorSizer < handle
                 'Ld_mH',               obj.Ld_mH, ...
                 'Lq_mH',               obj.Lq_mH, ...
                 'PsiPM1_Wb',           obj.PsiPM1_Wb, ...
+                'FMaxSpecific_Nm',     obj.FMaxSpecific_Nm, ...
+                'SigmaIbIdeal_MPa',    obj.SigmaIbIdeal_MPa, ...
+                'SigmaIb_MPa',         obj.SigmaIb_MPa, ...
+                'SigmaIbRatio',        obj.SigmaIbRatio, ...
+                'BridgeSafe',          obj.BridgeSafe, ...
                 'Converged',           obj.Converged, ...
                 'Iterations',          obj.Iterations);
         end
@@ -380,6 +450,23 @@ classdef IPMRotorSizer < handle
         end
 
     end % public methods
+
+    % =====================================================================
+    % Public static — data accessors
+    % =====================================================================
+    methods (Static, Access = public)
+
+        function [B_T, H_Am] = bhCurveData()
+            % bhCurveData  Return the M235-35A BH curve dataset used
+            %   internally for the saturation model (paper Fig. 2), so it
+            %   can be plotted/inspected without duplicating the numbers.
+            %
+            %   [B_T, H_Am] = IPMRotorSizer.bhCurveData();
+            B_T  = IPMRotorSizer.BFE_DATA;
+            H_Am = IPMRotorSizer.HFE_DATA;
+        end
+
+    end
 
     % =====================================================================
     % Private — four computation stages
@@ -498,8 +585,30 @@ classdef IPMRotorSizer < handle
             Hfe = @(B) obj.Hfe_interp_(abs(B));       % [A/m]
 
             % Eq. (3)  tooth flux density from air-gap flux density
-            % Paper approximation: B_t ≈ B_gI / (rho_bt_s * k_st)
-            Bt_of_BgI = @(BgI) BgI ./ (rho_bt_s * k_st);
+            % (implicit): 0 = BtG - BgI/(rho_bt_s*k_st)
+            %                 + mu0*Hfe(BtG)/k_st * (1/rho_bt_s - 1)
+            % Solved the same way as eq. (6) (root-find via
+            % invertMonotone_/fzero). An earlier version dropped the
+            % iron-MVD correction term entirely (Bt ≈ B_gI/(rho_bt_s*k_st)),
+            % which tracks this solved version closely at low B but
+            % increasingly overstates Bt (and so understates saturation)
+            % as B grows -- consistent with the sigma_sM(Mq) knee in
+            % plot_saturation_factor.m landing earlier/steeper than the
+            % paper's Fig. 3 before this fix.
+            %
+            % Solved once on a BgI grid (matching eq. (6)'s own [0,4.0]
+            % search domain below) and interpolated, rather than re-solved
+            % on every call: eq. (6)'s root-search alone samples ~200 BgI
+            % points, and it's itself called ~200 times per findGammaOpt_
+            % grid search -- solving eq. (3) on demand at every one of
+            % those points would nest one root-find inside another and
+            % make solve() prohibitively slow.
+            BgI_grid_for_Bt = linspace(0, 4.0, 200);
+            Bt_grid = arrayfun(@(BgI) IPMRotorSizer.invertMonotone_( ...
+                @(BtG) BtG - BgI ./ (rho_bt_s * k_st) ...
+                       + mu0 .* Hfe(BtG) ./ k_st .* (1/rho_bt_s - 1), ...
+                0, 0, 6.0), BgI_grid_for_Bt);
+            Bt_of_BgI = griddedInterpolant(BgI_grid_for_Bt, Bt_grid, 'pchip');
 
             % Eq. (4)  saturation ratio rho_sat(B_gI)
             rho_sat = @(BgI) 1 + Hfe(Bt_of_BgI(BgI)) .* rho_hte_g ...
@@ -514,8 +623,14 @@ classdef IPMRotorSizer < handle
 
             % Eq. (7)  saturation factor sigma_sM(Mq)
             % σ_sM = B_p(Mq) / (mu0 * Mq / (g*k_C))
-            sigma_fn = @(Mq) Bg_of_Mq(Mq) .* mu0 ...
-                             ./ (Mq .* g_m .* k_C + 1e-30);
+            %       = B_p(Mq) * g * k_C / (mu0 * Mq)
+            % NOTE: an earlier version of this line had mu0 multiplying
+            % B_p instead of dividing it -- dimensionally wrong (gave
+            % T^2/A^2, not pu) and off by ~6 orders of magnitude
+            % numerically. Fixed 2026-07-22; see plot_saturation_factor.m
+            % for the eq. (7) vs. paper Fig. 3 comparison.
+            sigma_fn = @(Mq) Bg_of_Mq(Mq) .* g_m .* k_C ...
+                             ./ (mu0 .* Mq + 1e-12);
 
             % ---- PM flux saturation factor eta_phiM(Mq) — Eq. (38) ----
             % Full magnetic network (Fig. 5) is approximated here by a
@@ -693,6 +808,49 @@ classdef IPMRotorSizer < handle
             obj.PsiPM1_Wb = PsiPM1;
             obj.Iq_A = Iq;
             obj.Id_A = Id;
+        end
+
+        function computeBridgeStress_(obj)
+            % Implements paper Section IV — eqs. 19-22 (rotor bridge
+            % centrifugal stress check). See doc/rotor_bridge_stress_notes.md
+            % for full sourcing.
+            %
+            % The paper does not spell out m_1p or R_av explicitly; this
+            % uses the same first-order approximation already sketched in
+            % the report (magnet-only mass, pole-shoe iron neglected —
+            % non-conservative simplification, flagged for a future pass):
+            %   m_1p ≈ 2 * rho_pm * b_m * h_m   (per unit stack length)
+            %   R_av ≈ Dr/2 - Dps/2             (centroid ~ mid pole-shoe depth)
+            s   = obj.spec_;
+            mat = obj.materials_;
+
+            Omega_max = 2*pi * s.MaxSpeed_rpm / 60;   % [rad/s]
+
+            b_m_m = obj.Bm_mm  * 1e-3;                % [m]
+            h_m_m = obj.Hm_mm  * 1e-3;                % [m]
+            R_av  = (obj.RotorOD_mm/2 - obj.Dps_mm/2) * 1e-3;  % [m]
+
+            m1p_specific = 2 * mat.rho_pm * b_m_m * h_m_m;      % [kg/m]
+
+            % Eq. (19) specific max centrifugal force [N/m]
+            f_max = m1p_specific * R_av * Omega_max^2;
+
+            % Eq. (20) ideal (nominal) inner bridge stress [Pa]
+            w_ib_m = obj.Wib_mm * 1e-3;
+            k_st   = s.StackingFactor;
+            sigma_ib_ideal = f_max / (w_ib_m * k_st);
+
+            % Eq. (21) actual stress with concentration factor [Pa]
+            sigma_ib = mat.Kt_ib * sigma_ib_ideal;
+
+            % Eq. (22) check against lamination yield strength
+            ratio = sigma_ib / mat.sigma_y_lam;
+
+            obj.FMaxSpecific_Nm  = f_max;
+            obj.SigmaIbIdeal_MPa = sigma_ib_ideal * 1e-6;
+            obj.SigmaIb_MPa      = sigma_ib * 1e-6;
+            obj.SigmaIbRatio     = ratio;
+            obj.BridgeSafe       = ratio < 1;
         end
 
     end % private compute methods

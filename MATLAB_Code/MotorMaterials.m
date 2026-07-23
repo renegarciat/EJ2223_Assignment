@@ -27,5 +27,13 @@ classdef MotorMaterials
       mu_r_copper     (1,1) double {mustBeFinite, mustBePositive} = 1;        % [-]   Relative permeability of copper
       sigma_copper    (1,1) double {mustBeFinite, mustBeNonnegative} = 5.8e7;    % [S/m] Electrical conductivity of copper
 
+      % --- Mechanical (rotor bridge stress check — see doc/rotor_bridge_stress_notes.md) ---
+      % Defaults are for the paper's named grades (M235-35A lamination,
+      % N48UZ-SGR PM), pulled from manufacturer datasheets, not the paper.
+      rho_lam     (1,1) double {mustBeFinite, mustBePositive} = 7650   % [kg/m^3] M235-35A lamination density
+      sigma_y_lam (1,1) double {mustBeFinite, mustBePositive} = 460e6  % [Pa] M235-35A yield strength (0.2% proof, rolling dir.)
+      rho_pm      (1,1) double {mustBeFinite, mustBePositive} = 7500   % [kg/m^3] sintered NdFeB density
+      Kt_ib       (1,1) double {mustBeFinite, mustBePositive} = 1.66   % [-] inner bridge stress concentration factor (Di Gerlando & Ricca, eq. 21)
+
    end
 end

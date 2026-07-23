@@ -1,13 +1,11 @@
 %% main.m
 clear; clc;
-% Dataset 1:
-
 % Desired torque at corner speed
-torque_Nm = 7; % [Nm] 
+torque_Nm = 9.8; % [Nm] 
 cornerSpeed_rpm = 10000; % [rpm]
 maxSpeed_rpm = 12000; % [rpm] % Approx. 35% higher than corner speed
 vdcLink_V = 515; % [V] %Changed!
-poles = 8;
+poles = 10;
 slots = 12;
 airgap_mm = 1; % [mm]
 br20_T = 1.37; % [T]
