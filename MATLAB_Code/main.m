@@ -3,7 +3,7 @@ clear; clc; close all;
 % Directives
 RUN_COMSOL_PREBUILT = true;
 RUN_COMSOL_PREBUILT_STUDY = true;  % runs the coupled EM/structural transient
-                                    % study (~20 min) -- cheap to leave on:
+                                    % study (~20 min). cheap to leave on:
                                     % results are cached (COMSOL_models/cache/)
                                     % and only re-solved when the design
                                     % point actually changes, or FORCE_-
@@ -23,7 +23,7 @@ airgap_mm = 1; % [mm]
 AlphaM = 0.80; % [0.5  - 1] Magnet Embrace / Pole Arc Ratio.
 Whr_fraction = 0.1; % [0.1 - 0.8] Half-width-rib fraction: how wide the ribs should be compared to the stator slot pitch
 Hm_mm = 3; % [mm] Magnet height
-AspectRatio = 2.0; % [1.0 - 2.0] le/tau_p
+AspectRatio = 2.0; % [1.1 - 2.0] le/tau_p
 Dos_target_m = 0.0899; % [m] Target stator (core) outer diameter: old motor's housing OD
                         % (95.9mm) minus 2x the drawing's 3mm minimal wall
                         % thickness -- the housing OD itself is NOT the same
@@ -67,7 +67,7 @@ if RUN_EFFICIENCY_MAP
     effMap.summary();
     effMap.plotMap(SavePath = fullfile(reportFiguresDir, 'efficiency_map.png'));
 end
-
+return; % temporal
 %% --- Push sizing results into the prebuilt COMSOL model
 % Requires "comsol mphserver" running in a terminal.
 if RUN_COMSOL_PREBUILT

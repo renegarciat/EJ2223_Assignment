@@ -1,33 +1,4 @@
 %% plot_D3L_current_density_sensitivity.m
-% Documents the investigation into why EssonsSizer.solveD3L(89.9mm) gives
-% a stack length that overshoots the 110mm axial ceiling (Dis=32.8mm,
-% le=123.5mm, le/Dis=3.77) for the actual design (9.8Nm, 10 poles,
-% current motor's 89.9mm stator-core-OD/85.2mm-length housing).
-%
-% Dos = 89.9mm is the current motor's stator core OD: its housing OD
-% (95.9mm, the cylinder containing the stator, confirmed against the
-% full AMK mechanical drawing, references/AMK motor mechanical
-% drawings.pdf) less the drawing's own 3mm minimal wall thickness --
-% that wall is not part of the active stator core Formula 2 is sizing.
-% An earlier version of this script (a) used Dos=80mm, the IMB5
-% mounting-flange register diameter at the shaft end, an unrelated,
-% much smaller feature -- see plot_D3L_geometry.m's header note -- and
-% (b) after fixing that, used Dos=95.9mm directly (the raw housing OD,
-% before the wall-thickness correction above).
-%
-% Finding at the corrected Dos: at the default Js,rms=8 A/mm^2, the
-% Ks,rms,max=90kA/m cooling constraint is only marginally binding
-% (the unconstrained geometry-optimal ratio alone would need
-% Ks,rms just over 90kA/m), and loosening it further doesn't help --
-% Dis relaxes back to the geometric optimum and le barely moves. The
-% real lever is still Js,rms: sweeping it shows le drops to exactly the
-% 85.2mm axial limit at Js,rms~12 A/mm^2 (Dis~39.5mm) -- still within
-% the 7-10 A/mm^2 range the 8 A/mm^2 default was drawn from, so this is
-% a real, not unreasonable, design lever. This does NOT mean Formula 2
-% is wrong: it means our *default* Js,rms (borrowed from the much
-% bigger reference paper machine) understates what this specific, much
-% smaller, liquid-cooled racing motor can actually do.
-%
 % Run from MATLAB_Code/ (or with it on the path); saves a PNG into
 % ../IPM_Design_Report/figures/.
 clear; clc;
@@ -47,7 +18,6 @@ for i = 1:numel(Js_sweep)
     sizer.solveD3L(Dos, MakePlot=false); % this script builds its own figure below
     Dis_mm(i) = sizer.Dis_D3L_m * 1e3;
     le_mm(i)  = sizer.le_D3L_m * 1e3;
-    active(i) = sizer.ConstraintActiveD3L;
 end
 ratio_leDis = le_mm ./ Dis_mm;
 
@@ -78,7 +48,7 @@ xline(8, ':k');
 text(8.3, max(le_mm)*0.92, 'default J_{s,rms}=8', 'FontSize', 8);
 xlabel('J_{s,rms} [A/mm^2]');
 ylabel('l_e [mm]');
-title({'Stack length l_e needed for T=9.8Nm', sprintf('(fixed D_{os}=%.0fmm)', Dos*1e3)});
+title({'Stack length l_e needed for T=9.8Nm', sprintf('(fixed D_{os}=%.1fmm)', Dos*1e3)});
 
 subplot(1,3,3);
 hold on; grid on;
@@ -92,8 +62,6 @@ text(Js_sweep(end)*0.4, 2.3, 'l_e/D_{is}=2 reference', 'FontSize', 8, 'Color', [
 xlabel('J_{s,rms} [A/mm^2]');
 ylabel('l_e / D_{is}');
 title('Aspect ratio l_e/D_{is}');
-
-sgtitle(sprintf('Why Formula 2 needed a longer stack at D_{os}=%.0fmm, and what fixes it', Dos*1e3));
 
 out_dir = fullfile('..', 'IPM_Design_Report', 'figures');
 exportgraphics(fig, fullfile(out_dir, 'd3l_current_density_sensitivity.png'), 'Resolution', 150);

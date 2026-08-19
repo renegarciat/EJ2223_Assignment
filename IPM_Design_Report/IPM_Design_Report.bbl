@@ -3,8 +3,7 @@
 \bibitem{ACHMagnetsN48}
 {ACH Magnets, Inc.}
 \newblock N48 sintered neodymium magnet datasheet.
-\newblock
-  \url{https://datasheets.globalspec.com/ds/ach-magnets/n48/5779689f-9ede-4f4b-b358-155fbaa0cfb0}.
+\newblock \url{https://datasheets.globalspec.com/ds/ach-magnets/n48/5779689f-9ede-4f4b-b358-155fbaa0cfb0}.
 
 \bibitem{DatasheetDD5}
 {AMK}.
@@ -12,22 +11,18 @@
 
 \bibitem{DrawingDD5}
 {Arnold M\"uller GmbH \& Co. KG (AMK)}.
-\newblock Mechanical drawing: Dd5-14-pow-19000, formula student (a2370, drawing
-  no.\ 12703-01260), Oct. 29 2014.
+\newblock Mechanical drawing: Dd5-14-pow-19000, formula student (a2370, drawing no.\ 12703-01260), Oct. 29 2014.
 \newblock Rev.\ 4, 2015-03-30.
 
 \bibitem{DiGerlandoRicca2022}
 A.~Di~Gerlando and C.~Ricca.
 \newblock Design modeling and sizing equations of v-shape {IPM} motors.
-\newblock In {\em 2022 International Conference on Electrical Machines (ICEM)},
-  2022.
+\newblock In {\em 2022 International Conference on Electrical Machines (ICEM)}, 2022.
 
 \bibitem{ElRefaie2010}
 Ayman~M. El-Refaie.
-\newblock Fractional-slot concentrated-windings synchronous permanent magnet
-  machines: Opportunities and challenges.
-\newblock {\em IEEE Transactions on Industrial Electronics}, 57(1):107--121,
-  2010.
+\newblock Fractional-slot concentrated-windings synchronous permanent magnet machines: Opportunities and challenges.
+\newblock {\em IEEE Transactions on Industrial Electronics}, 57(1):107--121, 2010.
 
 \bibitem{Lipo2017}
 Thomas~A. Lipo.
@@ -35,10 +30,8 @@ Thomas~A. Lipo.
 \newblock IEEE Press / Wiley, 2017.
 
 \bibitem{Metwly2021}
-Mohamed~Y. Metwly, Ahmed Hemeida, Ayman~S. Abdel-Khalik, Mostafa~S. Hamad, and
-  Shehab Ahmed.
-\newblock Design and multi-objective optimization of a 12-slot/10-pole
-  integrated obc using magnetic equivalent circuit approach.
+Mohamed~Y. Metwly, Ahmed Hemeida, Ayman~S. Abdel-Khalik, Mostafa~S. Hamad, and Shehab Ahmed.
+\newblock Design and multi-objective optimization of a 12-slot/10-pole integrated obc using magnetic equivalent circuit approach.
 \newblock {\em Machines}, 9(12):329, 2021.
 
 \bibitem{LucaLecture6}
@@ -48,14 +41,12 @@ Luca Peretti.
 
 \bibitem{LeiXu2019}
 Lei Xu.
-\newblock Indirect analytical modeling and analysis of v-shaped pm synchronous
-  machine.
+\newblock Indirect analytical modeling and analysis of v-shaped pm synchronous machine.
 \newblock IEEE Access, 2019.
 
 \bibitem{ZhuHowe2000}
 Z.~Q. Zhu and D.~Howe.
-\newblock Influence of design parameters on cogging torque in permanent magnet
-  machines.
+\newblock Influence of design parameters on cogging torque in permanent magnet machines.
 \newblock {\em IEEE Transactions on Energy Conversion}, 15(4):407--412, 2000.
 
 \end{thebibliography}
