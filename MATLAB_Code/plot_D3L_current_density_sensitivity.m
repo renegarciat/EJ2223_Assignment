@@ -1,35 +1,38 @@
 %% plot_D3L_current_density_sensitivity.m
-% Documents the investigation into why EssonsSizer.solveD3L(95.9mm) first
-% looked short of the torque target (Dis=36.1mm, le=101.8mm, le/Dis=2.82)
-% for the actual design (9.8Nm, 10 poles, current 95.9mm-housing-OD/
-% 85.2mm-length housing).
+% Documents the investigation into why EssonsSizer.solveD3L(89.9mm) gives
+% a stack length that overshoots the 110mm axial ceiling (Dis=32.8mm,
+% le=123.5mm, le/Dis=3.77) for the actual design (9.8Nm, 10 poles,
+% current motor's 89.9mm stator-core-OD/85.2mm-length housing).
 %
-% Dos = 95.9mm is the current motor's actual housing OD (the cylinder
-% containing the stator), confirmed against the full AMK mechanical
-% drawing (references/AMK motor mechanical drawings.pdf). An earlier
-% version of this script used Dos=80mm, which is actually the IMB5
-% mounting-flange register diameter at the shaft end (a much smaller,
-% unrelated feature) -- see plot_D3L_geometry.m's header note. That
-% mistake made the shortfall look far more dramatic than it really is
-% (Dis=29mm, le=175mm, le/Dis=6, cooling constraint fully inactive).
+% Dos = 89.9mm is the current motor's stator core OD: its housing OD
+% (95.9mm, the cylinder containing the stator, confirmed against the
+% full AMK mechanical drawing, references/AMK motor mechanical
+% drawings.pdf) less the drawing's own 3mm minimal wall thickness --
+% that wall is not part of the active stator core Formula 2 is sizing.
+% An earlier version of this script (a) used Dos=80mm, the IMB5
+% mounting-flange register diameter at the shaft end, an unrelated,
+% much smaller feature -- see plot_D3L_geometry.m's header note -- and
+% (b) after fixing that, used Dos=95.9mm directly (the raw housing OD,
+% before the wall-thickness correction above).
 %
 % Finding at the corrected Dos: at the default Js,rms=8 A/mm^2, the
 % Ks,rms,max=90kA/m cooling constraint is only marginally binding
 % (the unconstrained geometry-optimal ratio alone would need
 % Ks,rms just over 90kA/m), and loosening it further doesn't help --
-% Dis relaxes back to the geometric optimum (~34.8mm) and le barely
-% moves. The real lever is still Js,rms: sweeping it shows le drops to
-% exactly the 85.2mm axial limit at Js,rms~9.7 A/mm^2, only marginally
-% above the 8 A/mm^2 default. This does NOT mean Formula 2 is wrong: it
-% means our *default* Js,rms (borrowed from the much bigger reference
-% paper machine) slightly understates what this specific, much smaller,
-% liquid-cooled racing motor can actually do.
+% Dis relaxes back to the geometric optimum and le barely moves. The
+% real lever is still Js,rms: sweeping it shows le drops to exactly the
+% 85.2mm axial limit at Js,rms~12 A/mm^2 (Dis~39.5mm) -- still within
+% the 7-10 A/mm^2 range the 8 A/mm^2 default was drawn from, so this is
+% a real, not unreasonable, design lever. This does NOT mean Formula 2
+% is wrong: it means our *default* Js,rms (borrowed from the much
+% bigger reference paper machine) understates what this specific, much
+% smaller, liquid-cooled racing motor can actually do.
 %
 % Run from MATLAB_Code/ (or with it on the path); saves a PNG into
 % ../IPM_Design_Report/figures/.
 clear; clc;
 
-Dos = 95.9e-3;
+Dos = 89.9e-3;
 axialLimit_mm = 85.2;
 Js_sweep = linspace(4, 32, 60);
 

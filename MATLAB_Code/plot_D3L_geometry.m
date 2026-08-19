@@ -26,11 +26,13 @@ P_actual = spec.Poles; Q = spec.Slots;
 % diameter (front_technical_drawing.png), not its housing OD -- confirmed
 % against the full AMK mechanical drawing (references/AMK motor
 % mechanical drawings.pdf), which dimensions the actual housing body at
-% Phi95.9mm (spans the full-length cylindrical casing) vs. the small
-% flange disc at just the shaft end (Phi80mm register / Phi88mm bolt-boss
-% envelope). Using the housing OD instead, per the packaging rationale in
-% the report ("shouldn't be bigger than the old one").
-Dos = 95.9e-3;
+% Phi95.9mm (spans the full-length cylindrical casing). That housing OD
+% is not the same quantity as the stator core's own OD, though: the
+% drawing's 3mm minimal wall thickness is the housing's own wall, so the
+% stator core itself is Phi95.9 - 2(3) = Phi89.9mm -- what's used here,
+% per the packaging rationale in the report ("shouldn't be bigger than
+% the old one" refers to the stator core, not the housing shell).
+Dos = 89.9e-3;
 
 fig = figure('Name', 'D^3L output function and geometry', 'Position', [100 100 1100 480]);
 

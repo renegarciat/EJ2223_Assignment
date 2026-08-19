@@ -5,7 +5,7 @@
 \contentsline {subsection}{\numberline {2.1}Boundary Requirements}{6}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}First Design Objectives}{6}{subsection.2.2}%
 \contentsline {subsubsection}{\numberline {2.2.1}Ricca's Paper Methodology}{12}{subsubsection.2.2.1}%
-\contentsline {subsubsection}{\numberline {2.2.2}V-Shape Parametric Definition}{12}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.2}V-Shape Parametric Definition}{13}{subsubsection.2.2.2}%
 \contentsline {subsection}{\numberline {2.3}Magnetic Saturation and Optimal Phase Advance}{13}{subsection.2.3}%
 \contentsline {subsection}{\numberline {2.4}Rotor Bridge Sizing and Structural Integrity}{17}{subsection.2.4}%
 \contentsline {section}{\numberline {3}Part B: Finite Element Analysis and Validation}{18}{section.3}%

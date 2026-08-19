@@ -24,7 +24,10 @@ AlphaM = 0.80; % [0.5  - 1] Magnet Embrace / Pole Arc Ratio.
 Whr_fraction = 0.1; % [0.1 - 0.8] Half-width-rib fraction: how wide the ribs should be compared to the stator slot pitch
 Hm_mm = 3; % [mm] Magnet height
 AspectRatio = 2.0; % [1.0 - 2.0] le/tau_p
-Dos_target_m = 0.0959; % [m] First guess for the stator outer diameter
+Dos_target_m = 0.0899; % [m] Target stator (core) outer diameter: old motor's housing OD
+                        % (95.9mm) minus 2x the drawing's 3mm minimal wall
+                        % thickness -- the housing OD itself is NOT the same
+                        % quantity as the stator core's own OD.
 spec = MotorSpec(torque_Nm, cornerSpeed_rpm, maxSpeed_rpm, ...
                 vdcLink_V, poles, slots, ...
                 airgap_mm, AspectRatio = AspectRatio);
