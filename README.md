@@ -174,7 +174,7 @@ sizer = EssonsSizer(spec, WindingFactor=0.91);
 
 #### Key properties
 
-- Results (set by `solve()`): `Dis_m`, `Dso_m`, `Dro_m`, `le_m`, `tau_p_m`, `tau_s_m`, `t_s_m`, `h_slot_m`, `h_cs_m`, `Ratio`, `q_spp`, `Solved`
+- Results (set by `solve()`): `Dis_m`, `Dos_m`, `Dro_m`, `le_m`, `tau_p_m`, `tau_s_m`, `t_s_m`, `h_slot_m`, `h_cs_m`, `Ratio`, `q_spp`, `Solved`
 - Convenience: `StatorBore_mm` (dependent) — `Dis_m` in mm
 
 #### Methods
@@ -218,7 +218,7 @@ sizer = IPMRotorSizer(spec, StatorBore_mm=160, Materials=MotorMaterials());
 - Rotor geometry: `RotorOD_mm`, `RotorID_mm`, `RotorPolePitch_mm`, `Hob_mm`, `Zeta_deg`, `Hib_mm`, `Hhr_mm`, `Dps_mm`, `Bm_mm`, `Whr_mm`, `Hry_mm`, etc.
 - Saturation/no-load: `CarterFactor`, `PhiGo_Wbm`, `Bg1o_T`, `PhiG1o_Wbm`
 - Torque sizing: `StackLength_mm`, `GammaOpt_deg`, `SpecificTorque_kNmm`, `EtaPhi_c`, `SigmaS_c`
-- Winding & stator core sizing: `ConductorsInSeries`, `ConductorsInSlot`, `PhaseCurrent_A`, `NumStrands`, `WireDiameter_mm`, `ToothWidth_mm`, `SlotWidthInner_mm`, `SlotWidthOuter_mm`, `SlotHeight_mm`, `SlotArea_mm2`, `StatorYokeHeight_mm`, `StatorOD_mm` (paper: `D_es`, eq. 94 — not to be confused with `EssonsSizer.Dso_m`/the `D^3L` method's `Dos`, a different, disagreeing estimate; see [Known issues → Stator bore mismatch](#known-issues)) — the actual conductor count/gauge and slot/yoke/OD dimensions a FEM cross-section needs, derived from the corner-point EMF and current density.
+- Winding & stator core sizing: `ConductorsInSeries`, `ConductorsInSlot`, `PhaseCurrent_A`, `NumStrands`, `WireDiameter_mm`, `ToothWidth_mm`, `SlotWidthInner_mm`, `SlotWidthOuter_mm`, `SlotHeight_mm`, `SlotArea_mm2`, `StatorYokeHeight_mm`, `StatorOD_mm` (paper: `D_es`, eq. 94 — not to be confused with `EssonsSizer.Dos_m`/the `D^3L` method's `Dos`, a different, disagreeing estimate; see [Known issues → Stator bore mismatch](#known-issues)) — the actual conductor count/gauge and slot/yoke/OD dimensions a FEM cross-section needs, derived from the corner-point EMF and current density.
 - Structural check: `FMaxSpecific_Nm`, `SigmaIbIdeal_MPa`, `SigmaIb_MPa`, `SigmaIbRatio`, `BridgeSafe` — rotor inner-bridge centrifugal stress at max speed vs. the lamination yield strength; `BridgeSafe` is `true` when `SigmaIbRatio < 1`. See [Rotor bridge stress check — design notes](#rotor-bridge-stress-check--design-notes).
 - Electrical: `Cq`, `LambdaIs_uHm`, `Ld_mH`, `Lq_mH`, `PsiPM1_Wb`
 - Convergence: `Converged`, `Iterations`

@@ -52,8 +52,8 @@ The team currently utilizes 4 \textbf{DD5-14-10-POW-18600-B5} motors to power th
 \\\textbf{Rotor Topology:} Interior permanent magnet (IPM) topology. See Figure \ref{fig:stator_stator_rotor} (right): embedded magnet pockets are visible under the pole shoes, rather than magnets glued to the rotor surface. The topology cannot be confirmed from the datasheet alone, and some internal team notes instead describe this motor as SPM with a slight rotor anisotropy; we adopt the IPM reading here since it is consistent with both the rotor picture and the measured saliency below ($L_q<L_d$), which a plain SPM rotor would not exhibit.
 \\\textbf{Saliency Profile:} $L_d = 0.24$ mH and $L_q = 0.12$ mH ($L_q < L_d$).
 \\\textbf{Stack Length ($l_e$):} \textbf{85.2 mm}, from the mechanical drawing \cite{DrawingDD5} (Fig.~\ref{fig:side_technical_drawing}, left: $12.4+61+11.8\,\text{mm}$).
-\\\textbf{Housing Diameter ($D_{housing}$):} \textbf{95.9 mm}, from the mechanical drawing \cite{DrawingDD5} (Fig.~\ref{fig:side_technical_drawing}, right).
-\\\textbf{Stator Bore Diameter ($D_{is}$):} $\approx$\textbf{89.9 mm}. No drawing dimensions the bore directly, so we back it out of $D_{housing}$ minus twice the drawing's 3\,mm minimal wall thickness: $95.9 - 2(3) = 89.9\,\text{mm}$.\\
+\\\textbf{Stator Outer Diameter ($D_{os}$):} \textbf{89.9 mm}, from the mechanical drawing; housing diameter - 3\,mm minimal wall thickness. \cite{DrawingDD5} (Fig.~\ref{fig:side_technical_drawing}, right: $95.9 - 2(3) = 89.9\,\text{mm}$).
+\\\textbf{Stator Inner Diameter ($D_{is}$):} $\approx$\textbf{?? mm}. No drawing dimensions the bore directly.\\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{figures/stator_stator_rotor.png}
@@ -73,7 +73,7 @@ Note that the same motor/inverter configuration is used for the 4 wheels, but th
     \caption{Front view of the current motor.}
     \label{fig:front_technical_drawing}
 \end{figure}
-Moreover, each motor is connected to a fixed gearbox with a 14:1 ratio, which will be kept for the new design. Thus, any further speed calculation has to consider that the motor rotates 14 times faster than the wheel. Also, note from Fig. \ref{fig:power_and_torque_current_motor} how the current motor can operate in field-weakening mode only from 16000 rpm up to the 20000 rpm limit, meaning the machine has a"Flux-weakening ratio" of 1.52 (20,000 rpm / 13,200 rpm). We will briefly see in section \ref{sec:Inverter} that the KW26-S5-FSE-4Q inverter only allows for a max. speed of 14,400 rpm, thus leaving a real flux-weakening ratio of only 1.1 (14,400 rpm / 13,200 rpm). For the new design, we aim to increase this ratio.
+Moreover, each motor is connected to a fixed gearbox with a 14:1 ratio, which will be kept for the new design. Thus, any further speed calculation has to consider that the motor rotates 14 times faster than the wheel. Also, note from Fig. \ref{fig:power_and_torque_current_motor} how the current motor can operate in field-weakening mode only from 16000 rpm up to the 20000 rpm limit, meaning the machine has a"Flux-weakening ratio" of 1.52 (20,000 rpm / 13,200 rpm). We will briefly see in section \ref{sec:Inverter} that the KW26-S5-FSE-4Q inverter only allows for a max. speed of 14,400 rpm, thus leaving a real flux-weakening ratio of only 1.1 (14,400 rpm / 13,200 rpm). For the new design, we aim to increase this ratio up to a value around 1.2.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\linewidth]{figures/power_and_torque_current_motor.png}
@@ -103,11 +103,11 @@ The following table summarizes the previously analyzed motor/inverter parameters
 \textbf{Nominal Torque} & $M_{n}$ & 9.8 Nm \\
 %\textbf{Peak Torque} & $M_{clip}$ & 18 Nm \\
 \textbf{Nominal Speed} & $N_{n}$ & 12,000 rpm \\
-\textbf{Max.Speed} & $N_{max}$ & 14,400 rpm \\
+\textbf{Max. Speed} & $N_{max}$ & 14,400 rpm \\
 \textbf{Corner Speed Point} & $N_{char}$ & 13,200 rpm \\
 \textbf{Gear Ratio} & $G$ & 14:1 \\
 \textbf{Stack Length} & $l_e$ & 85.2 mm \\
-\textbf{Housing Diameter} & $D_{housing}$ & 95.9 mm \\
+\textbf{Stator Outer Diameter} & $D_{os}$ & 89.9 mm \\
 \textbf{Aspect ratio} & $l_e/D_{is}$ & 0.888 \\
 \textbf{Flux-weakening Ratio (inverter constrained)} & $N_m/N_c$ & 1.1 \\
 \textbf{Rotor Topology} & --- & Interior Permanent Magnet \\ \hline
@@ -170,14 +170,14 @@ Output spline & DIN 5480 - W11x0,8x30$^\circ$x30x12x7h \\
 \end{table}
 \subsection{First Design Objectives}
 Now, we will define our design target parameters, using the current motor parameters (Table~\ref{tab:current_motor_data}) as a starting point, and aiming to respect the boundary requirements (Table~\ref{tab:propulsion_motor_requirements}).
-Similarly to the old design, we will use permanent magnets due to their high power density, taking into consideration the thermal limits. We will avoid surface permanent magnets (SPM) because the use of glue introduces mechanical challenges. On the other hand, the interior permanent magnet (IPM) topology allows a more robust mechanical design and the possibility to have a higher saliency ratio ($L_q/L_d$), Moreover, \textbf{We aim to invert the saliency in order to make $L_q$ > $L_d$}; This new topology will allow a wider field-weakening operation mode, increasing the knee point we saw in \ref{fig:power_and_torque_current_motor}. which is beneficial for field-weakening operation. \\
+Similarly to the old design, we will use permanent magnets due to their high power density, taking into consideration the thermal limits. We will avoid surface permanent magnets (SPM) because the use of glue introduces mechanical challenges. On the other hand, the interior permanent magnet (IPM) topology allows a more robust mechanical design and the possibility to have a higher saliency ratio ($L_q/L_d$), Moreover, \textbf{We aim to invert the saliency in order to make $L_q$ > $L_d$}; This new topology will allow a wider field-weakening operation mode, shifting the knee point we saw in \ref{fig:power_and_torque_current_motor} to the left. \\
 The embedded PM structure also provides slightly higher torque density per unit volume, since reluctance torque from the $d$- and $q$-axis inductance difference adds to the magnet torque \cite{LeiXu2019}.
 \subsubsection*{Pole/Slot Number}
 \label{sec:pole_slot_number}
-For the number of poles, we will use 10 as the previous motor, because it is already optimized for the 1200 Hz inverter limit at 12,000 rpm.
+For the number of poles, we will use 10 as the previous motor, because it is already optimized for the 1200 Hz inverter ($N_n$) limit at 12,000 rpm.
 The corresponding electrical frequency is
 \begin{equation}
-    f_{el} = \frac{pole\;pairs\cdot N_n}{60} = \frac{10/2 \cdot 12,000}{60} = 1000\,\text{Hz}
+    f_{el} = \frac{Pole\;No./2\cdot N_n}{60} = \frac{10/2 \cdot 12,000}{60\,s} = 1000\,\text{Hz}
 \end{equation}
 For the number of slots, we will use 12 as the previous motor. With $P=10$ poles, this gives $\gcd(S,P)=2$ and a cogging-torque periodicity of $N_{cog}=\mathrm{lcm}(S,P)=60$ cycles per mechanical revolution: a higher $N_{cog}$ spreads the slot/pole interaction over more, smaller torque ripples per revolution, which is the standard cogging-torque design guideline for choosing a slot/pole combination \cite{ZhuHowe2000}. A 12-slot/10-pole machine is also a common fractional-slot concentrated-winding (FSCW) combination ($q=S/(2pm)=0.4$ slots per pole per phase), which in addition to low cogging torque offers a high copper slot-fill factor and short, low-loss end windings -- attractive properties for a compact, high-torque-density traction machine \cite{ElRefaie2010}.
 Also, we will consider increasing the winding turns from the current 43, to allow for higher magnetic flux linkage and thus letting the back-EMF reach the DC bus voltage limit at a lower speed, while reducing $I^2R$ losses for the nominal speed, and enabling us to use the motor in the field-weakening mode for a wider speed range.
@@ -357,7 +357,7 @@ The following table summarizes the first design objectives.
 \textbf{Pole Number} & $P$ & 10 & Sized to maximize the AMK RACING KIT inverter capacity (26 kVA/channel) while respecting the inverter DC bus ceiling (515 V). \\
 \textbf{Slot Number} & $S$ & 12 & Kept from the current motor (Table~\ref{tab:current_motor_data}): gives a 1.2 slots/pole ratio, a non-integer-slot winding already used to reduce cogging torque. \\
 \textbf{Length x Diameter} & $l_e \times D_{is}$ & 101.8 mm x 36.1 mm & \texttt{EssonsSizer.solveD3L}'s actual output (Formula 2, $D^3L$, Sec.~\ref{sec:ricca_methodology}) at the $95.9\,\text{mm}$ envelope and the $J_{s,rms}=8\,\text{A/mm}^2$ default -- clears the 110\,mm requirement (Table~\ref{tab:propulsion_motor_requirements}) but with little margin left for winding heads, an open item (see the discussion after Formula 2). Formula 1 gives a shorter, fatter alternative (32.8\,mm x 52.2\,mm) from its fixed $\sigma_m=70,000\,\text{N/m}^2$ and $\lambda=2.0$ pole-pitch aspect ratio -- see the discussion after Formula 2 for why they differ; the choice between them is left to the next design iteration. \\
-\textbf{Stator/Housing OD target} & $D_{os}$ & 95.9 mm & Fixed to the current motor's housing OD (Table~\ref{tab:current_motor_data}) as a packaging constraint -- the new design should not be larger than the old one -- and used directly by Formula 2. \\
+\textbf{Stator OD target} & $D_{os}$ & 89.9 mm & Fixed to the current motor's housing OD (Table~\ref{tab:current_motor_data}) as a packaging constraint. Aim for the new design to not be larger than the old one. \\
 \textbf{Line Voltage} & $V_{line}$ & 515 V & It is under the 540V nominal value of the inverter. \\
 \textbf{Target Nominal Power} & $P_{nom}$ & $\approx$12.6 kW & Mechanical power at the $T_{nom}$/$n_{base}$ corner point (next two rows), $P_{nom}=T_{nom}\cdot\omega_{base}$ -- matches the Formula team's 12\,kW average-power requirement (Table~\ref{tab:propulsion_motor_requirements}) with a small margin. An earlier iteration of this table targeted a deliberately reduced 10\,kW/7\,Nm on the assumption the front wheels only see partial power; that reduction is not reflected anywhere else in this design (the sizing pipeline runs at the full 9.8\,Nm/9.8\,Nm requirement throughout), so this row now reports what the design actually delivers instead. \\
 \textbf{Target Peak Power} & $P_{peak}$ & 28 kW & Sized to maximize the AMK RACING KIT inverter capacity (26 kVA/channel) while respecting the inverter DC bus ceiling (515 V). \\

@@ -5,8 +5,8 @@
 %
 % NOTE: solveD2L() (formerly solve()) was simplified to the plain D^2
 % formula -- it now only computes Dis, le, tau_p, Dro. The slot-geometry/
-% Dso outputs this test used to check (q_spp, tau_s_m, t_s_m, h_slot_m,
-% h_cs_m, Dso_m, Ratio) no longer exist on EssonsSizer, so those
+% Dos outputs this test used to check (q_spp, tau_s_m, t_s_m, h_slot_m,
+% h_cs_m, Dos_m, Ratio) no longer exist on EssonsSizer, so those
 % assertions were removed rather than left to hard-crash on a missing
 % property. The Dis mismatch above is the original, still-open issue
 % this test tracks -- unrelated to that simplification.

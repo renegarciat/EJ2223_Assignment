@@ -192,7 +192,7 @@ classdef MotorGeometry
 			fprintf('\nMotorGeometry summary\n');
 			fprintf('%s\n', repmat('-', 1, 52));
 			fprintf('  %-30s %.2f mm\n', 'Stator inner diameter (D_si):', obj.StatorInnerRadius_m*2e3);
-			fprintf('  %-30s %.2f mm\n', 'Stator outer diameter (D_so):', obj.StatorOuterRadius_m*2e3);
+			fprintf('  %-30s %.2f mm\n', 'Stator outer diameter (D_os):', obj.StatorOuterRadius_m*2e3);
 			fprintf('  %-30s %d\n',      'Slots:',                     obj.Slots);
 			fprintf('  %-30s %d\n',      'Pole pairs:',                obj.PolePairs);
 			fprintf('  %-30s %.2f mm\n', 'Slot depth (bore to yoke):', obj.SlotDepth_m*1e3);
@@ -200,7 +200,7 @@ classdef MotorGeometry
 			fprintf('  %-30s %.2f mm\n', 'Tooth height (= slot depth):', obj.ToothHeight_m*1e3);
 			fprintf('  %-30s %.2f mm\n', 'Stator yoke height (h_sy):', obj.StatorYokeHeight_m*1e3);
 			fprintf('\n');
-			fprintf('  %-30s %.2f mm\n', 'Rotor outer diameter (D_r):',  obj.RotorOuterRadius_m*2e3);
+			fprintf('  %-30s %.2f mm\n', 'Rotor outer diameter (D_or):',  obj.RotorOuterRadius_m*2e3);
 			fprintf('  %-30s %.2f mm\n', 'Rotor inner diameter (D_ir):', obj.RotorInnerRadius_m*2e3);
 			fprintf('  %-30s %.2f mm\n', 'Airgap:',                    obj.Airgap_m*1e3);
 			fprintf('  %-30s %.2f mm\n', 'Magnet length (b_m):',       obj.MagnetLength_m*1e3);
