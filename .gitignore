@@ -1,0 +1,17 @@
+*.~lock*
+*.lock
+# Latex report temporal files
+*.aux
+*.fls
+*.log
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*autosave*
+*.mph
+COMSOL_models/cache/
+references/
+.claude
+.vscode
+.venv
+*.pdf
