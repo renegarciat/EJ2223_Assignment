@@ -55,7 +55,7 @@ The team currently utilizes 4 \textbf{DD5-14-10-POW-18600-B5} motors to power th
 \\\textbf{Saliency Profile:} $L_d = 0.24$ mH and $L_q = 0.12$ mH ($L_q < L_d$).
 \\\textbf{Stack Length ($l_e$):} \textbf{85.2 mm}, from the mechanical drawing \cite{DrawingDD5} (Fig.~\ref{fig:side_technical_drawing}, left: $12.4+61+11.8\,\text{mm}$).
 \\\textbf{Stator Outer Diameter ($D_{os}$):} \textbf{89.9 mm}, from the mechanical drawing; housing diameter - 3\,mm minimal wall thickness. \cite{DrawingDD5} (Fig.~\ref{fig:side_technical_drawing}, right: $95.9 - 2(3) = 89.9\,\text{mm}$).
-\\\textbf{Stator Inner Diameter ($D_{is}$):} $\approx$\textbf{-- mm}. No drawing dimensions the bore directly.\\
+\\\textbf{Stator Inner Diameter ($D_{is}$):} \textbf{-- mm}. No drawing dimensions the bore.\\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{figures/stator_stator_rotor.png}
@@ -304,7 +304,7 @@ To trigger the torque fall at an earlier speed, we must increase $\Psi_m$ (e.g.,
 \begin{equation}
     \Psi_m \approx \frac{V_{\text{phase,peak,max}}}{p\,\omega_{m,base}} \approx \frac{273}{5 \cdot 1282} \approx 0.0426\,\text{Wb}
 \end{equation}
-Ricca's procedure (Section \ref{sec:ricca_methodology}) now converges for this design point and gives $\Psi_{PM1}=0.0176\,\text{Wb}$ (\texttt{IPMRotorSizer.PsiPM1\_Wb}) -- only $\approx$40\% of the $\Psi_m$ target above, even with the N48 magnet (Eq. \ref{eq:br_derating}, $B_r\approx1.21\,\text{T}$ at 140\textdegree{}C). This tracks the no-load flux-density shortfall flagged in Section \ref{sec:ricca_methodology} (README.md's "Known issues" section): with $B_{g,1o}$ itself running low for this pole pitch, $\Psi_{PM1}$ falls short too, so at the current turns/magnet geometry the machine reaches its corner point later than the 12,240\,rpm targeted here. Closing this gap -- more turns, a wider magnet, or the corrected leakage model that section proposes -- is an open item for the next design iteration.
+Ricca's procedure (Section \ref{sec:ricca_methodology}) now converges for this design point and gives $\Psi_{PM1}=0.0176\,\text{Wb}$ (\texttt{IPMRotorSizer.PsiPM1\_Wb}) -- only $\approx$40\% of the $\Psi_m$ target above, even with the N48 magnet (Eq. \ref{eq:br_derating}, $B_r\approx1.21\,\text{T}$ at 140\textdegree{}C). This tracks the no-load flux-density shortfall flagged in Section \ref{sec:ricca_methodology}: with $B_{g,1o}$ itself running low for this pole pitch, $\Psi_{PM1}$ falls short too, so at the current turns/magnet geometry the machine reaches its corner point later than the 12,240\,rpm targeted here. Closing this gap (more turns, a wider magnet, etc.) is an open item for the next design iteration.
 
 \subsubsection{Ricca's Paper Methodology}
 \label{sec:ricca_methodology}
@@ -385,7 +385,7 @@ Eq.~\ref{eq:wm} gives the magnet segment width, reused in Section \ref{sec:bridg
 The structural integrity of the IPM rotor is heavily dependent on the sizing of the inner ($w_{ib}$) and outer ($w_{ob}$) iron bridges. In this project the operating cap is $n_{max}=14{,}400\,\text{rpm}$ (Table~\ref{tab:motor_design_data}, Section~\ref{sec:corner_speed}), and the bridge stress check is performed at this speed.
 Electromagnetically, these bridges must be as thin as possible to minimize permanent magnet (PM) flux leakage. Mechanically, they must withstand the centrifugal forces exerted by the PM segments and the iron pole shoe.
 
-Following the analytical model, the outer bridge is fixed to a minimum practical manufacturing thickness. In the current COMSOL/FEMM iteration this is set to $w_{ob}=0.5\,\text{mm}$ (Table \ref{tab:comsol_param_set}), while the inner bridge is sized to sustain the primary centrifugal load.
+Following the analytical model, the outer bridge is fixed to a minimum practical manufacturing thickness. In the current COMSOL/FEMM iteration this is set to $w_{ob}=0.5\,\text{mm}$ (Table \ref{tab:params_defined}), while the inner bridge is sized to sustain the primary centrifugal load.
 
 The maximum angular velocity for a mechanical speed $n_{max}$ is:
 \begin{equation}
@@ -403,7 +403,7 @@ As a first-order estimate, the magnet contribution to $m_{1p}$ can be computed f
 \begin{equation}
     m_{pm,1p} \approx 2\,\rho_{pm}\,w_m\,t_m\,L
 \end{equation}
-where $\rho_{pm}$ is the magnet density, $w_m=4.97\,\text{mm}$ (derived, eq.~\ref{eq:wm} -- Table \ref{tab:comsol_param_set}), $t_m=3\,\text{mm}$, and $l_e$ is the active stack length.
+where $\rho_{pm}$ is the magnet density, $w_m=4.97\,\text{mm}$ (derived, eq.~\ref{eq:wm} -- Table \ref{tab:params_calculated}), $t_m=3\,\text{mm}$, and $l_e$ is the active stack length.
 
 The stress on the inner bridge is then evaluated against the lamination yield strength ($\sigma_{y,lam}$) using a stress concentration factor ($K_t$):
 \begin{equation}
@@ -443,7 +443,7 @@ Both the M235-35A BH curve and the resulting saturation factor $\sigma_{sM}(M_q)
 \label{fig:saturation_factor}
 \end{figure}
 
-Numerically maximizing Eq.~\ref{eq:ricca_torque_pu} over $\gamma$ at this design's operating point ($B_{g,1o}=0.77\,\text{T}$ from stage 2, $\Delta=90{,}000\,\text{A/m}$ peak linear current density, $D_{is}=52.15\,\text{mm}$) gives the optimal phase advance $\gamma_{opt}=23.8^\circ$ and, evaluating the same equation there, the per-unit torque $f_{T,c}=1.107$. These convert to a specific torque -- torque per unit stack length -- and, dividing the target torque by it, the stack length:
+Numerically maximizing Eq.~\ref{eq:ricca_torque_pu} over $\gamma$ at this design's operating point ($B_{g,1o}=0.77\,\text{T}$ from stage 2, $\Delta=90{,}000\,\text{A/m}$ peak linear current density, $D_{is}=52.15\,\text{mm}$) gives the optimal phase advance $\gamma_{opt}=23.8^\circ$ and, evaluating the same equation there, the per-unit torque $f_{T,c}=1.107$. These convert to a specific torque (torque per unit stack length) and, dividing the target torque by it, the stack length:
 \begin{equation}
     \label{eq:specific_torque}
     T_\ell = f_{T,c}\cdot\frac{\pi k_w}{2\sqrt2}B_{g,1o}\Delta D_{is}^2 = 1.107\times\frac{\pi\times0.91}{2\sqrt2}\times0.77\times90{,}000\times0.05215^2 \approx 210.5\,\text{Nm/m}
@@ -452,6 +452,13 @@ Numerically maximizing Eq.~\ref{eq:ricca_torque_pu} over $\gamma$ at this design
     \label{eq:stack_length}
     l_e = \frac{T_{nom}}{T_\ell} = \frac{9.8}{210.5} \approx 46.6\,\text{mm}
 \end{equation}
+
+The same converged design point also fixes the phase current the rest of Part A and the FEM pipeline use. With $I_d=0$ (no field weakening at the corner/base torque point) and the converged $\Psi_{PM1}=0.0176\,\text{Wb}$ (Section \ref{sec:corner_speed}), the $I_q$ needed to produce the rated torque, and the resulting peak phase current, are:
+\begin{equation}
+    \label{eq:iq_current}
+    I_q = \frac{T_{nom}}{1.5\cdot(P/2)\cdot\Psi_{PM1}} = \frac{9.8}{1.5\times5\times0.0176} \approx 74.2\,\text{A}, \qquad I_{pk}=\sqrt{I_d^2+I_q^2}=I_q\approx74.2\,\text{A}
+\end{equation}
+This $I_{pk}=74.2\,\text{A}$ is a different quantity from the $I_{peak}\approx75.8\,\text{A}$ of Section \ref{sec:part_b_fea}: that one is an independent sanity check against the peak-\emph{power} requirement's assumed efficiency/power-factor, while $I_{pk}$ here is the actual current this specific converged rotor design needs to hit its rated \emph{torque}, given its real (flux-linkage-limited) $\Psi_{PM1}$ -- it is what actually gets pushed to the FEM (Table~\ref{tab:params_pushed}). Both stay comfortably under the 107\,A inverter limit.
 
 The following table summarizes the first design objectives.
 \begin{center}
@@ -486,33 +493,68 @@ The following table summarizes the first design objectives.
 \end{longtable}
 \end{center}
 
-For traceability, Table~\ref{tab:comsol_param_set} summarizes the \textbf{current} geometry and operating-point parameters, and the \texttt{MotorSpec}/\texttt{IPMRotorSizer} property each one maps to. \texttt{IPMRotorSizer.solve()} now converges end-to-end for this design point (\texttt{main.m}: \texttt{AlphaM=0.80}, \texttt{Whr\_fraction=0.1}, \texttt{Hm\_mm=3}), so the table reports its actual solved output rather than the earlier placeholders -- including the magnet/bridge geometry (last four rows), which Section \ref{sec:vshape_definition} previously hand-set. The stack length here ($l_e=46.6$\,mm, eq.~\ref{eq:stack_length}) is Ricca's own electromagnetically-driven result, distinct from Formula 1/2's Esson-rule estimates (Section \ref{sec:ricca_methodology} reconciliation discussion) -- the two sizing passes have not yet been cross-checked against each other.
+For traceability, this section funnels the design pipeline through three views of the same design point: what we \textbf{define} directly (Table~\ref{tab:params_defined}), what the sizing chain then \textbf{calculates} from those choices (Table~\ref{tab:params_calculated}), and finally the subset of both that actually gets \textbf{pushed to COMSOL} (Table~\ref{tab:params_pushed}) as Global Parameters for the FEA model. \texttt{IPMRotorSizer.solve()} converges end-to-end for this design point (\texttt{main.m}: \texttt{AlphaM=0.80}, \texttt{Whr\_fraction=0.1}, \texttt{Hm\_mm=3}), so every value below is its actual solved output, not a placeholder. The stack length here ($l_e=46.6$\,mm, eq.~\ref{eq:stack_length}) is Ricca's own electromagnetically-driven result, distinct from Formula 1/2's Esson-rule estimates (Section \ref{sec:ricca_methodology} reconciliation discussion) -- the two sizing passes have not yet been cross-checked against each other.
 
 \begin{table}[H]
 \centering
-\caption{Geometry and operating-point parameter set used by the MATLAB automation}
-\label{tab:comsol_param_set}
+\caption{Design choices -- defined directly}
+\label{tab:params_defined}
 \begin{tabular}{@{}p{0.24\linewidth}p{0.11\linewidth}p{0.35\linewidth}p{0.22\linewidth}@{}}
 \toprule
 \textbf{Parameter} & \textbf{Symbol} & \textbf{MATLAB Variable} & \textbf{Value} \\
 \midrule
 Number of poles & $N_p$ & \texttt{spec.Poles} & 10 \\
 Number of slots & $N_s$ & \texttt{spec.Slots} & 12 \\
-Rotor diameter & $d_r$ & \texttt{rotorSizer.RotorOD\_mm} & 50.15 mm \\
-Shaft diameter & $D_{ir}$ & \texttt{rotorSizer.RotorID\_mm} & 35.58 mm \\
-Stator diameter & $d_{st}$ & \texttt{rotorSizer.StatorOD\_mm} & 108.8 mm \\
 Airgap & $g$ & \texttt{spec.Airgap\_mm} & 1 mm \\
-Stack length (sized) & $l_e$ & \texttt{rotorSizer.StackLength\_mm} & 46.6 mm \\
-Phase current pushed to FEM & $I_{pk}$ & \texttt{hypot(motorGeometry.Id\_A, motorGeometry.Iq\_A)} & 74.2 A (phase peak) \\
-Corner speed & $n_{base}$ & \texttt{spec.CornerSpeed\_rpm} & 12,240 rpm \\
 Speed (operating cap) & $n_{max}$ & \texttt{spec.MaxSpeed\_rpm} & 14,400 rpm \\
-Magnet width (slab) & $w_m$ & \texttt{rotorSizer.Bm\_mm} & 4.97 mm \\
 Magnet height & $t_m$ & \texttt{rotorSizer.Hm\_mm} & 3 mm \\
 V-angle & $\alpha_v$ & \texttt{rotorSizer.Vtilt\_deg} & 78$^\circ$\\
 Outer bridge thickness & $w_{ob}$ & \texttt{rotorSizer.Wob\_mm} & 0.5 mm \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{table}[H]
+\centering
+\caption{Sizing results -- calculated from the choices above}
+\label{tab:params_calculated}
+\begin{tabular}{@{}p{0.24\linewidth}p{0.11\linewidth}p{0.35\linewidth}p{0.22\linewidth}@{}}
+\toprule
+\textbf{Parameter} & \textbf{Symbol} & \textbf{MATLAB Variable} & \textbf{Value} \\
+\midrule
+Rotor diameter & $d_r$ & \texttt{rotorSizer.RotorOD\_mm} & 50.15 mm \\
+Shaft diameter & $D_{ir}$ & \texttt{rotorSizer.RotorID\_mm} & 35.58 mm \\
+Stator diameter & $d_{st}$ & \texttt{rotorSizer.StatorOD\_mm} & 108.8 mm \\
+Stator yoke height & $h_{sy}$ & \texttt{rotorSizer.StatorYoke\-Height\_mm} & 3.97 mm \\
+Stack length & $l_e$ & \texttt{rotorSizer.StackLength\_mm} & 46.6 mm \\
+Corner speed & $n_{base}$ & \texttt{spec.CornerSpeed\_rpm} & 12,240 rpm \\
+Phase current & $I_{pk}$ & \texttt{hypot(motorGeometry.Id\_A, motorGeometry.Iq\_A)} & 74.2 A (phase peak, eq.~\ref{eq:iq_current}) \\
+Magnet width (slab) & $w_m$ & \texttt{rotorSizer.Bm\_mm} & 4.97 mm \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Values pushed to COMSOL as Global Parameters}
+\label{tab:params_pushed}
+\begin{tabular}{@{}p{0.20\linewidth}p{0.12\linewidth}p{0.13\linewidth}p{0.18\linewidth}p{0.19\linewidth}@{}}
+\toprule
+\textbf{Parameter} & \textbf{COMSOL Param} & \textbf{Value} & \textbf{Source} & \textbf{Pushed by} \\
+\midrule
+Number of poles & \texttt{Np} & 10 & Table~\ref{tab:params_defined} & \texttt{pushGeometry} \\
+Number of slots & \texttt{Ns} & 12 & Table~\ref{tab:params_defined} & \texttt{pushGeometry} \\
+Airgap & \texttt{airgap} & 1 mm & Table~\ref{tab:params_defined} & \texttt{pushGeometry} \\
+Speed (structural sweep) & \texttt{w\_rot} & 14,400 rpm & Table~\ref{tab:params_defined} & \texttt{pushGeometry} \\
+Rotor diameter & \texttt{d\_r} & 50.15 mm & Table~\ref{tab:params_calculated} & \texttt{pushGeometry} \\
+Shaft diameter & \texttt{d\_s} & 35.58 mm & Table~\ref{tab:params_calculated} & \texttt{pushGeometry} \\
+Stator yoke height & \texttt{h\_sy} & 3.97 mm & Table~\ref{tab:params_calculated} & \texttt{pushGeometry} \\
+Stack length & \texttt{L} & 46.6 mm & Table~\ref{tab:params_calculated} & \texttt{pushGeometry} \\
+Phase current (peak) & \texttt{Ipk} & 74.2 A & Table~\ref{tab:params_calculated} & \texttt{pushExcitation} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\textbf{Not currently pushed:} magnet height $t_m$, V-angle $\alpha_v$, magnet width $w_m$, and outer bridge thickness $w_{ob}$ have no corresponding \texttt{pushGeometry} input -- the rotor part's magnet/bridge dimensions in the \texttt{.mph} template stay at whatever was last set by hand in COMSOL Desktop, not synced from \texttt{rotorSizer}. This is the same class of gap as the shaft-diameter one fixed above, still open for these four.
 
 
 \section{Part B: Finite Element Analysis and Validation}
@@ -539,9 +581,9 @@ Rearranging for the current limit validation, and plugging in the peak power tar
 
 \subsection{Simulation Framework}
 \label{sec:sim_framework}
-In \texttt{main.m}, a single driver class, \textbf{\texttt{ComsolPrebuiltInterface}} (\texttt{RUN\_COMSOL\_PREBUILT}), takes the \texttt{MotorGeometry} built from the converged sizing results (Sections \ref{sec:ricca_methodology}--\ref{sec:bridge_sizing}) and pushes the eight design values that actually change between design iterations -- pole/slot count, air gap, stator yoke height, rotor diameter, shaft (rotor bore) diameter, stack length, and the rotation speed the structural sweep runs at ($w_{rot}=n_{max}$) -- as Global Parameters into a pre-built COMSOL AC/DC Application-Library model, then rebuilds only the geometry sequence. Its read-only template (\texttt{interior\_pm\_motor\_stress\_analysis\_original.mph}) is never written to; results save to a separate output file. Pushing parameters into a template this way avoids the meshing/physics setup overhead of a from-scratch geometric redraw on every design iteration. Study results are cached by design point (\texttt{ComsolPrebuiltInterface.runStudyCached}, \texttt{COMSOL\_models/cache/}): re-running \texttt{main.m} at an unchanged design point reuses the previous $\approx$20-minute coupled EM/structural solve instead of repeating it, while a genuinely new design point still triggers a fresh solve automatically.
+In \texttt{main.m}, a single driver class, \textbf{\texttt{ComsolPrebuiltInterface}} (\texttt{RUN\_COMSOL\_PREBUILT}), takes the \texttt{MotorGeometry} built from the converged sizing results (Section \ref{sec:ricca_methodology}) and pushes the eight design values that actually change between design iterations -- pole/slot count, air gap, stator yoke height, rotor diameter, shaft (rotor bore) diameter, stack length, and the rotation speed the structural sweep runs at ($w_{rot}=n_{max}$) -- as Global Parameters into a pre-built COMSOL AC/DC Application-Library model, then rebuilds only the geometry sequence. Its read-only template (\texttt{interior\_pm\_motor\_stress\_analysis\_original.mph}) is never written to; results save to a separate output file. Pushing parameters into a template this way avoids the meshing/physics setup overhead of a from-scratch geometric redraw on every design iteration. Study results are cached by design point (\texttt{ComsolPrebuiltInterface.runStudyCached}, \texttt{COMSOL\_models/cache/}): re-running \texttt{main.m} at an unchanged design point reuses the previous $\approx$20-minute coupled EM/structural solve instead of repeating it, while a genuinely new design point still triggers a fresh solve automatically.
 
-Exercising this pipeline end-to-end for the converged design point (Table~\ref{tab:comsol_param_set}) gives the results in Table~\ref{tab:fem_results}. The FEM-predicted average torque, $8.48\,\text{Nm}$, comes in $13.5\%$ below the $9.8\,\text{Nm}$ analytical target -- consistent with, and roughly the same order as, the flux-linkage shortfall already flagged in Section \ref{sec:corner_speed}: since the converged $\Psi_{PM1}$ falls short of the target the analytical torque sizing assumes, that sizing is itself optimistic, and the FEM, seeing the true (lower) flux at the same pushed current ($I_{pk}=74.2\,\text{A}$, Table~\ref{tab:comsol_param_set}), produces correspondingly less torque. Torque ripple is a modest $4.9\%$. The coupled structural solve puts peak von Mises stress at $63.0\,\text{MPa}$ -- $13.7\%$ of $\sigma_{y,lam}=460\,\text{MPa}$ (Section \ref{sec:bridge_sizing}) -- and peak displacement at $69\,\mu\text{m}$, both comfortably within margin. The FEM stress is notably higher than the analytical bridge-only check ($8.33\,\text{MPa}$, Section \ref{sec:bridge_sizing}): the FEM captures the full 2D stress field (geometric concentrations, electromagnetic force contributions) rather than just the idealized centrifugal-load bridge model, so this is expected and not a contradiction.
+Exercising this pipeline end-to-end for the converged design point (Table~\ref{tab:params_pushed}) gives the results in Table~\ref{tab:fem_results}. The FEM-predicted average torque, $8.48\,\text{Nm}$, comes in $13.5\%$ below the $9.8\,\text{Nm}$ analytical target -- consistent with, and roughly the same order as, the flux-linkage shortfall already flagged in Section \ref{sec:corner_speed}: since the converged $\Psi_{PM1}$ falls short of the target the analytical torque sizing assumes, that sizing is itself optimistic, and the FEM, seeing the true (lower) flux at the same pushed current ($I_{pk}=74.2\,\text{A}$, Table~\ref{tab:params_pushed}), produces correspondingly less torque. Torque ripple is a modest $4.9\%$. The coupled structural solve puts peak von Mises stress at $63.0\,\text{MPa}$ -- $13.7\%$ of $\sigma_{y,lam}=460\,\text{MPa}$ (Section \ref{sec:bridge_sizing}) -- and peak displacement at $69\,\mu\text{m}$, both comfortably within margin. The FEM stress is notably higher than the analytical bridge-only check ($8.33\,\text{MPa}$, Section \ref{sec:bridge_sizing}): the FEM captures the full 2D stress field (geometric concentrations, electromagnetic force contributions) rather than just the idealized centrifugal-load bridge model, so this is expected and not a contradiction.
 
 \begin{table}[H]
 \centering
@@ -589,13 +631,13 @@ Peak displacement & 0.069 mm \\
 
 \subsection{Energy Efficiency Map}
 \label{sec:efficiency_map}
-The assignment brief asks for an energy efficiency map over the whole torque-speed range, which -- unlike the single-point FEM validation above -- is not practical to build from FEM alone: even a coarse grid would need dozens of $\approx$20-minute coupled solves. Instead, \texttt{EfficiencyMapSizer.m} builds a rough analytical loss model directly from the converged \texttt{IPMRotorSizer} geometry and winding data, sanity-checked at the rated point against the same current pushed into the FEM above, and sweeps it over the achievable torque-speed envelope:
+\texttt{EfficiencyMapSizer.m} builds a rough analytical loss model directly from the converged \texttt{IPMRotorSizer} geometry and winding data, sanity-checked at the rated point against the same current pushed into the FEM above, and sweeps it over the achievable torque-speed envelope:
 \begin{itemize}
     \item \textbf{Copper loss:} phase resistance from a geometric mean-turn-length estimate (twice the stack length plus a semicircular end-turn bridging one slot pitch on each end, appropriate for this design's non-overlapping, single-tooth-wound coils, Section \ref{sec:pole_slot_number}), evaluated at an assumed $100\,\text{\textdegree{}C}$ hot winding temperature. This gives $R_s\approx604\,\text{m}\Omega$/phase over a $1.22\,\text{kg}$ stator core (teeth+yoke).
     \item \textbf{Core loss:} a two-term (hysteresis+eddy) Steinmetz fit calibrated to the M235-35A lamination's single datasheet point ($P_{1.5/50}=2.35\,\text{W/kg}$ -- literally what "235" means in the EN\,10106 grade name), extrapolated up to this design's much higher electrical frequency ($f_c=1020\,\text{Hz}$, a $20\times$ extrapolation past the 50\,Hz reference point) -- flagged as the map's single biggest source of uncertainty; treat core-loss numbers as order-of-magnitude, not precise.
     \item \textbf{Excluded:} mechanical (windage/bearing) losses -- no validated model at this design stage.
 \end{itemize}
-At the rated point (9.8\,Nm, $n_{base}=12{,}240$\,rpm, $I_{pk}=74.2$\,A -- the same current validated by FEM above), this gives $P_{cu}\approx4.99\,\text{kW}$, $P_{fe}\approx0.33\,\text{kW}$, and an efficiency of $\approx70\%$. This is markedly lower than the $\eta=0.92$ assumed in Section \ref{sec:part_b_fea}'s electromechanical power modeling, and traces directly to the same flux-linkage shortfall discussed throughout Part A and Section \ref{sec:sim_framework}: with $\Psi_{PM1}$ under target, more current ($I_{pk}=74.2\,\text{A}$, driven by $I_q=T/(1.5\cdot p/2\cdot\Psi_{PM1})$) is needed to produce the same torque than a fully-fluxed design would need, which raises $I^2R$ loss directly. Closing the leakage-model gap (README.md's "Known issues" section) is therefore not just a torque/flux-linkage fix -- it is the single highest-leverage change for this design's actual efficiency.
+At the rated point (9.8\,Nm, $n_{base}=12{,}240$\,rpm, $I_{pk}=74.2$\,A -- the same current validated by FEM above), this gives $P_{cu}\approx4.99\,\text{kW}$, $P_{fe}\approx0.33\,\text{kW}$, and an efficiency of $\approx70\%$. This is markedly lower than the $\eta=0.92$ assumed in Section \ref{sec:part_b_fea}'s electromechanical power modeling, and traces directly to the same flux-linkage shortfall discussed throughout Part A and Section \ref{sec:sim_framework}: with $\Psi_{PM1}$ under target, more current ($I_{pk}=74.2\,\text{A}$, eq.~\ref{eq:iq_current}) is needed to produce the same torque than a fully-fluxed design would need, which raises $I^2R$ loss directly. Closing the leakage-model gap (README.md's "Known issues" section) is therefore not just a torque/flux-linkage fix -- it is the single highest-leverage change for this design's actual efficiency.
 
 Figure \ref{fig:efficiency_map} sweeps this loss model over the full torque-speed grid ($T\in[0,9.8]\,\text{Nm}$, $n\in[0,14{,}400]\,\text{rpm}$, the design's own continuous rating and inverter-limited speed cap), with $I_d=0$ below corner speed (matching Section \ref{sec:ricca_methodology}'s own corner-point assumption) and a simplified voltage-limited flux-weakening solve above it. The narrow infeasible band immediately above corner speed is a direct, honest consequence of the same flux-linkage shortfall: at this design's actual (low) $\Psi_{PM1}$, sustaining full torque needs more current than the voltage budget allows once speed rises even slightly, so this map's flux-weakening range is narrower than the $1.18\times$ ratio Section \ref{sec:corner_speed} targets. The assignment's peak-torque (5\,s, $21.5$\,Nm) and spec max-speed ($20{,}000$\,rpm) targets are marked for context only -- neither is evaluated by this continuous-duty loss model.
 
@@ -607,14 +649,14 @@ Figure \ref{fig:efficiency_map} sweeps this loss model over the full torque-spee
 \end{figure}
 
 \section{Thermal and Mechanical Analysis}
-A critical design constraint is the existing \textbf{4\,l/min liquid cooling loop}, originally sized for the current motor's 12.4\,kW rating. The mechanical side of this section is already covered by full FEM in Section \ref{sec:sim_framework} (peak von Mises stress and displacement, Table~\ref{tab:fem_results}); this section covers the thermal side, which -- per the assignment brief's own "additionally (and hopefully)" framing for Part B -- stops short of a full thermal FEM or lumped-parameter model in this design iteration.
+A critical design constraint is the existing \textbf{4\,l/min liquid cooling loop}, originally sized for the current motor's 12.4\,kW rating. The mechanical side of this section is already covered by full FEM in Section \ref{sec:sim_framework} (peak von Mises stress and displacement, Table~\ref{tab:fem_results}); this section covers the thermal side, which stops short of a full thermal FEM or lumped-parameter model in this design iteration.
 
 The analytical loss model from Section \ref{sec:efficiency_map} puts total loss at the rated point at $P_{cu}+P_{fe}\approx5.32\,\text{kW}$ ($4.99$\,kW copper, $0.33$\,kW core) against an $\approx$12.6\,kW mechanical output (Table~\ref{tab:motor_design_data}) -- a substantial heat load, dominated by copper loss, and itself inflated by the same flux-linkage shortfall discussed throughout this report (Sections \ref{sec:corner_speed}, \ref{sec:efficiency_map}). Whether the existing 4\,l/min loop can hold this load within the magnets' demagnetization limit and the winding insulation's temperature class depends on convective/conductive thermal resistances not modeled here; sizing a lumped-parameter or thermal-FEM model against this loss figure is the natural next step before the design can be considered thermally validated. The $140\,\text{\textdegree{}C}$ PM operating temperature already assumed in Section \ref{sec:magnet_material} (and the resulting need for a high-temperature-stable magnet variant) reflects an expectation that this loss level runs hot, not a validated steady-state result.
 
 \section{Conclusion}
 Starting from the current 10-pole/12-slot DD5-14-10-POW motor and its inverter-limited 1.1 flux-weakening ratio (Section \ref{sec:Inverter}), Part A defined boundary requirements (Table~\ref{tab:propulsion_motor_requirements}) and, keeping the pole/slot count for its proven cogging-torque and winding benefits (Section \ref{sec:pole_slot_number}), sized a V-shape IPM rotor targeting $L_q>L_d$ for added reluctance torque. Two independent Esson's-rule estimates (Sections \ref{sec:ricca_methodology}) bracket a feasible bore/stack-length envelope inside the 120\,mm/110\,mm boundary, and the full Di Gerlando \& Ricca sizing procedure (\texttt{IPMRotorSizer}) converges end-to-end for this design point, giving a complete geometry, winding, and rated operating point (Table~\ref{tab:motor_design_data}) together with a rotor-bridge stress check that is comfortably safe at the 14,400\,rpm operating cap (Section \ref{sec:bridge_sizing}).
 
-Part B (Section \ref{sec:part_b_fea}) exercised this pipeline end-to-end: \texttt{ComsolPrebuiltInterface} pushed the converged design into the prebuilt COMSOL model and ran the coupled EM/structural transient study, giving $8.48\,\text{Nm}$ average torque ($4.9\%$ ripple), $63.0\,\text{MPa}$ peak von Mises stress, and $0.069\,\text{mm}$ peak displacement (Section \ref{sec:sim_framework}, Table~\ref{tab:fem_results}) -- structurally safe with margin, though the torque undershoots the $9.8\,\text{Nm}$ analytical target for the reason discussed below. An analytical loss model (Section \ref{sec:efficiency_map}) additionally swept the full torque-speed envelope, giving the energy efficiency map the assignment brief asks for and an honest, quantified rated-point efficiency of $\approx70\%$.
+Part B (Section \ref{sec:part_b_fea}) exercised this pipeline end-to-end: \texttt{ComsolPrebuiltInterface} pushed the converged design into the prebuilt COMSOL model and ran the coupled EM/structural transient study, giving $8.48\,\text{Nm}$ average torque ($4.9\%$ ripple), $63.0\,\text{MPa}$ peak von Mises stress, and $0.069\,\text{mm}$ peak displacement (Section \ref{sec:sim_framework}, Table~\ref{tab:fem_results}) -- structurally safe with margin, though the torque undershoots the $9.8\,\text{Nm}$ analytical target for the reason discussed below. An analytical loss model (Section \ref{sec:efficiency_map}) additionally swept the full torque-speed envelope, giving the energy efficiency map and a quantified rated-point efficiency of $\approx70\%$.
 
 Two related open items should be resolved before the design is considered converged: (1) the no-load leakage constant inside \texttt{IPMRotorSizer} is calibrated to the reference paper's larger pole pitch and underestimates leakage by roughly $4$--$6\times$ at this project's tighter 10-pole/12-slot geometry (README.md's "Known issues" section), which is the most likely cause of the required flux linkage $\Psi_m\approx0.0426$\,Wb (Section \ref{sec:corner_speed}) not yet being met by the converged $\Psi_{PM1}=0.0176$\,Wb -- and, now quantified, the direct cause of the FEM torque shortfall (Section \ref{sec:sim_framework}) and the $\approx70\%$ rated-point efficiency (Section \ref{sec:efficiency_map}), since hitting the intended torque with too little flux means drawing more current than planned, at a direct $I^2R$ cost; and (2) the resulting stator outer diameter ($D_{es}=108.8\,\text{mm}$) still exceeds the old motor's own 89.9\,mm stator-core OD (Section \ref{sec:current_motor_background}) by about 19\,mm, though it remains within the 120\,mm boundary requirement including cooling. Closing the leakage-model gap first is the natural next step, since it directly affects all three figures.
 
