@@ -151,7 +151,7 @@ classdef EssonsSizer < handle
 
 			s = obj.spec_;
 			P    = s.Poles;
-			Q    = s.Slots;
+			N_s  = s.Slots;
 			Bg1  = s.Bg1_T;
 			Bt   = s.Bt_T;
 			Bc   = s.Bc_T;
@@ -226,7 +226,7 @@ classdef EssonsSizer < handle
 			obj.SolvedD3L          = true;
 
 			if options.MakePlot
-				obj.plotD3LOptimum_(a, b, beta_t, beta_c, rho_u, Dis, Dos, P, Q, constraintActive);
+				obj.plotD3LOptimum_(a, b, beta_t, beta_c, rho_u, Dis, Dos, P, N_s, constraintActive);
 			end
 		end
 
@@ -324,7 +324,7 @@ classdef EssonsSizer < handle
 			Dro = Dis - 2 * Airgap_m;
 		end
 
-		function plotD3LOptimum_(obj, a, b, beta_t, beta_c, rho_u, Dis, Dos, P, Q, constraintActive)
+		function plotD3LOptimum_(obj, a, b, beta_t, beta_c, rho_u, Dis, Dos, P, N_s, constraintActive)
 			% plotD3LOptimum_  Visualize the D^3L output function fo(rho)
 			% and the resulting stator cross-section at the solved point
 			% -- ported from plot_D3L_geometry.m so solveD3L() shows the
@@ -352,7 +352,7 @@ classdef EssonsSizer < handle
 			end
 			xlabel('\rho = D_{is}/D_{os}');
 			ylabel('f_o(\rho)');
-			title({sprintf('Output function f_o(\\rho), P=%d/Q=%d', P, Q), ...
+			title({sprintf('Output function f_o(\\rho), P=%d/N_s=%d', P, N_s), ...
 				sprintf('D_{os}=%.1fmm, solved \\rho=%.3f', Dos*1e3, ratio)});
 			ylim([-0.1, 0.5]);
 
@@ -370,9 +370,9 @@ classdef EssonsSizer < handle
 			fill(R_os*cos(th), R_os*sin(th), [0.55 0.55 0.58], 'EdgeColor', 'k');
 			fill(R_yoke*cos(th), R_yoke*sin(th), [0.85 0.5 0.15], 'EdgeColor', 'none');
 
-			slot_pitch_ang = 2*pi/Q;
+			slot_pitch_ang = 2*pi/N_s;
 			tooth_ang = beta_t * slot_pitch_ang;
-			for k = 0:Q-1
+			for k = 0:N_s-1
 				a0 = k*slot_pitch_ang - tooth_ang/2;
 				a1 = a0 + tooth_ang;
 				aw = linspace(a0, a1, 10);
@@ -390,8 +390,8 @@ classdef EssonsSizer < handle
 			text(-R_os*0.9, -R_os*0.55, sprintf('teeth (gray)\nslots (orange)'), 'FontSize', 8);
 			xlim([-R_os*1.15, R_os*1.15]); ylim([-R_os*1.15, R_os*1.15]);
 
-			sgtitle(sprintf('D^3L optimum: P=%d/Q=%d, D_{os}=%.1fmm \\rightarrow D_{is}=%.1fmm, l_e=%.1fmm', ...
-				P, Q, Dos*1e3, Dis*1e3, obj.le_D3L_m*1e3));
+			sgtitle(sprintf('D^3L optimum: P=%d/N_s=%d, D_{os}=%.1fmm \\rightarrow D_{is}=%.1fmm, l_e=%.1fmm', ...
+				P, N_s, Dos*1e3, Dis*1e3, obj.le_D3L_m*1e3));
 			drawnow;
 		end
 

@@ -494,3 +494,5 @@ Solution: TBD. Two options: (a) replace `leakage_no_load` with the paper's own e
 - Whether the reference motor (`DD5-14-10-POW-18600-B5`) is itself IPM or SPM is unresolved: rotor images suggest IPM, but the professor asserts it is SPM with slight anisotropy accounting for $L_d \neq L_q$.
 - `EssonsSizer`'s stator bore estimate doesn't match the reference paper's own worked example (~6% off) — see [Known issues → Stator bore mismatch](#known-issues).
 - The no-load saturation/leakage model (`IPMRotorSizer.computeSaturationModel_`) is a calibrated approximation, currently ~10–20% off the paper's reference values at the paper's own scale, and 4–6x off at this project's much smaller pole pitch — see [Known issues → No-load leakage underestimated](#known-issues) and the diagnostics in `MATLAB_Code/tests/test_IPMRotorSizer.m`.
+
+TODO: The shaft diameter (D_ir) is not being pushed to COMSOL, check if its being calculated and if not calculate it and push it.

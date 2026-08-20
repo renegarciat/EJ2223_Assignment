@@ -1,13 +1,9 @@
 classdef EfficiencyMapSizer < handle
    % EfficiencyMapSizer  Rough analytical loss and efficiency-map estimate
    % over the motor's torque-speed operating envelope, built entirely from
-   % a converged IPMRotorSizer -- no extra FEM runs needed. Produces the
-   % "energy efficiency map over the whole torque-speed range" deliverable
-   % the assignment brief asks for (Part B).
+   % a converged IPMRotorSizer, no extra FEM runs needed.
    %
-   % Deliberately "rough" (the assignment's own language for this design
-   % stage), with every simplifying assumption flagged here and in
-   % summary()/the design report:
+   % Assumptions:
    %   - Copper loss: phase resistance from a geometric mean-turn-length
    %     estimate (2x stack length + a semicircular end-turn bridging one
    %     slot pitch on each end -- appropriate for this design's

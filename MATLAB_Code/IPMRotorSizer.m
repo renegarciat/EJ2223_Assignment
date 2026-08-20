@@ -544,11 +544,11 @@ classdef IPMRotorSizer < handle
             p  = s.Poles;
             D  = obj.statorBore_mm_; % [mm]
             g  = s.Airgap_mm;       % [mm]
-            Q  = s.Slots;
+            N_s  = s.Slots;
 
             % Basic derived quantities
             D_r   = D - 2*g;                          % rotor OD  [mm]
-            tau_s = pi * D / Q;                       % stator slot pitch [mm]
+            tau_s = pi * D / N_s;                      % stator slot pitch [mm]
             tau_r = pi * D_r / p;                     % rotor pole pitch  [mm]
 
             % Rotor design choices

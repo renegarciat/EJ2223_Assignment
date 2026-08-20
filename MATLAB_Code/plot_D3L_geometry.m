@@ -2,7 +2,7 @@
 % Visualizes the D^3L output-coefficient method (EssonsSizer.solveD3L,
 % Lecture 6 "Improving the Esson's rule") to make beta_t, beta_c, and
 % fo(Dis/Dos) concrete instead of abstract, at our design's fixed P=10/
-% Q=12 topology (no pole-count sweep -- an earlier version of this script
+% N_s=12 topology (no pole-count sweep -- an earlier version of this script
 % compared several pole counts, which is no longer relevant now that the
 % pole/slot combination is fixed):
 %
@@ -21,7 +21,7 @@ clear; clc;
 spec = MotorSpec(9.8, 10000, 12000, 515, 10, 12, 1); % Br20 now lives in MotorMaterials, not MotorSpec
 Bg1 = spec.Bg1_T; Bt = spec.Bt_T; Bc = spec.Bc_T;
 kis = spec.IronFillFactor; kst = spec.StackingFactor;
-P_actual = spec.Poles; Q = spec.Slots;
+P_actual = spec.Poles; N_s = spec.Slots;
 % Dos = 80mm was the current motor's IMB5 mounting-flange register
 % diameter (front_technical_drawing.png), not its housing OD -- confirmed
 % against the full AMK mechanical drawing (references/AMK motor
@@ -39,7 +39,7 @@ fig = figure('Name', 'D^3L output function and geometry', 'Position', [100 100 1
 [a, b, beta_t, beta_c] = EssonsSizer.computeAB_(Bg1, Bt, Bc, P_actual, kis, kst);
 rho_u = fminbnd(@(r) -EssonsSizer.fo_(r, a, b), 1e-3, 1-1e-3);
 
-% ---------------- Left panel: fo(rho) at P=10/Q=12 ----------------
+% ---------------- Left panel: fo(rho) at P=10/N_s=12 ----------------
 subplot(1,2,1);
 hold on; grid on;
 rho = linspace(0.01, 0.99, 400);
@@ -50,7 +50,7 @@ plot(rho_u, fo_max, 'o', 'MarkerSize', 7, 'MarkerFaceColor', [0 0.45 0.74], 'Mar
 text(rho_u+0.03, fo_max, sprintf('optimum \\rho=%.3f', rho_u), 'FontSize', 8);
 xlabel('\rho = D_{is}/D_{os}');
 ylabel('f_o(\rho)');
-title({sprintf('Output function f_o(\\rho), P=%d/Q=%d', P_actual, Q), ...
+title({sprintf('Output function f_o(\\rho), P=%d/N_s=%d', P_actual, N_s), ...
     sprintf('(B_{g,1}=%.2fT, B_t=%.2fT, B_c=%.2fT -- our design''s targets)', Bg1, Bt, Bc)});
 ylim([-0.1, 0.5]);
 
@@ -71,9 +71,9 @@ th = linspace(0, 2*pi, 200);
 fill(R_os*cos(th), R_os*sin(th), [0.55 0.55 0.58], 'EdgeColor', 'k');       % (1) iron
 fill(R_yoke*cos(th), R_yoke*sin(th), [0.85 0.5 0.15], 'EdgeColor', 'none'); % (2) slot region (orange)
 
-slot_pitch_ang = 2*pi/Q;
+slot_pitch_ang = 2*pi/N_s;
 tooth_ang = beta_t * slot_pitch_ang;
-for k = 0:Q-1
+for k = 0:N_s-1
     a0 = k*slot_pitch_ang - tooth_ang/2;
     a1 = a0 + tooth_ang;
     aw = linspace(a0, a1, 10);

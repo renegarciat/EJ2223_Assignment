@@ -21,7 +21,7 @@ classdef MotorSpec < handle
 %     maxSpeed_rpm        Maximum (flux-weakening) speed [rpm]
 %     vdcLink_V           DC-link voltage [V]
 %     poles               Number of poles (pole pairs! even integer >= 2)
-%     slots               Total number of slots Q
+%     slots               Total number of slots N_s
 %     airgap_mm           Air-gap length g [mm]
 %
 %   Optional name-value inputs (with defaults)
@@ -226,7 +226,7 @@ classdef MotorSpec < handle
                 error('MotorSpec:invalidWinding', ...
                     ['The combination of %d slots, %d poles, and %d phases is not ' ...
                      'physically feasible for a balanced winding. \n' ...
-                     'Mathematical rule: Q / (m * t) must be an integer. Result was: %g'], ...
+                     'Mathematical rule: N_s / (m * t) must be an integer. Result was: %g'], ...
                     obj.Slots, obj.Poles, obj.Phases, feasibilityRatio);
             end
             % 2. Warning: Check for diametric symmetry (Unbalanced Magnetic Pull)
@@ -289,7 +289,7 @@ classdef MotorSpec < handle
             fprintf('\n');
             fprintf('  %-30s %d\n',     'Poles:',               obj.Poles);
             fprintf('  %-30s %g\n',     'Slots/pole/phase (q):', obj.SlotsPerPolePerPhase);
-            fprintf('  %-30s %d\n',     'Total slots (Q):',     obj.Slots);
+            fprintf('  %-30s %d\n',     'Total slots (N_s):',   obj.Slots);
             fprintf('  %-30s %d\n',     'Phases:',              obj.Phases);
             fprintf('\n');
             fprintf('  %-30s %g mm\n',  'Air gap g:',           obj.Airgap_mm);

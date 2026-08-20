@@ -24,10 +24,7 @@ AlphaM = 0.80; % [0.5  - 1] Magnet Embrace / Pole Arc Ratio.
 Whr_fraction = 0.1; % [0.1 - 0.8] Half-width-rib fraction: how wide the ribs should be compared to the stator slot pitch
 Hm_mm = 3; % [mm] Magnet height
 AspectRatio = 2.0; % [1.1 - 2.0] le/tau_p
-Dos_target_m = 0.0899; % [m] Target stator (core) outer diameter: old motor's housing OD
-                        % (95.9mm) minus 2x the drawing's 3mm minimal wall
-                        % thickness -- the housing OD itself is NOT the same
-                        % quantity as the stator core's own OD.
+Dos_target_m = 0.0899; % [m] Target stator (core) outer diameter
 spec = MotorSpec(torque_Nm, cornerSpeed_rpm, maxSpeed_rpm, ...
                 vdcLink_V, poles, slots, ...
                 airgap_mm, AspectRatio = AspectRatio);
@@ -56,7 +53,7 @@ motorGeometry.summary();
 % mfilename('fullpath'), not pwd: MATLAB's run() changes the current
 % folder to the script's own folder while it executes, so pwd is
 % MATLAB_Code/ here regardless of where run('MATLAB_Code/main.m') was
-% invoked from -- this resolves the repo root robustly either way.
+% invoked from. This resolves the repo root robustly either way.
 repoRoot = fileparts(mfilename('fullpath'));
 reportFiguresDir = fullfile(repoRoot, '..', 'IPM_Design_Report', 'figures');
 
