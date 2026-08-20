@@ -5,10 +5,9 @@
 \contentsline {subsection}{\numberline {2.1}Boundary Requirements}{6}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}First Design Objectives}{6}{subsection.2.2}%
 \contentsline {subsubsection}{\numberline {2.2.1}Ricca's Paper Methodology}{12}{subsubsection.2.2.1}%
-\contentsline {subsection}{\numberline {2.3}Rotor Bridge Sizing and Structural Integrity}{16}{subsection.2.3}%
-\contentsline {section}{\numberline {3}Part B: Finite Element Analysis and Validation}{17}{section.3}%
+\contentsline {section}{\numberline {3}Part B: Finite Element Analysis and Validation}{18}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Electromechanical Power Modeling}{18}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}Simulation Framework}{18}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}Energy Efficiency Map}{20}{subsection.3.3}%
-\contentsline {section}{\numberline {4}Thermal and Mechanical Analysis}{23}{section.4}%
+\contentsline {subsection}{\numberline {3.3}Energy Efficiency Map}{21}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Thermal and Mechanical Analysis}{22}{section.4}%
 \contentsline {section}{\numberline {5}Conclusion}{23}{section.5}%

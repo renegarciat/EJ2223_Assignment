@@ -2,6 +2,7 @@
 *.lock
 # Latex report temporal files
 *.aux
+*.bbl
 *.fls
 *.log
 *.fdb_latexmk

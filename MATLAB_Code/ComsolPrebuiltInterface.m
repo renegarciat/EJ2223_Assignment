@@ -78,7 +78,7 @@ classdef ComsolPrebuiltInterface < handle
       end
 
       function pushGeometry(obj, options)
-         %pushGeometry  Set one or more of the seven design values as
+         %pushGeometry  Set one or more of the eight design values as
          %COMSOL Global Parameters, then re-pin the Part Instance inputs
          %that are known to need a matching symbolic reference (rather
          %than trusting whatever literal value they were last hand-set
@@ -90,6 +90,7 @@ classdef ComsolPrebuiltInterface < handle
             options.Airgap_mm (1,1) double
             options.StatorYokeHeight_mm (1,1) double
             options.RotorDiameter_mm (1,1) double
+            options.ShaftDiameter_mm (1,1) double
             options.L_mm (1,1) double
             options.MaxSpeed_rpm (1,1) double
          end
@@ -115,6 +116,18 @@ classdef ComsolPrebuiltInterface < handle
          if isfield(options, 'RotorDiameter_mm')
             obj.setParam_('d_r', obj.lengthStr_(options.RotorDiameter_mm));
             obj.setPartInput_(obj.rotorPartTag, 'rotor_diam', 'd_r');
+         end
+         if isfield(options, 'ShaftDiameter_mm')
+            % d_s ("Shaft diameter") already exists as a Global Parameter
+            % and pi1's shaft_diam input is already wired to it in the
+            % template -- but d_s was left at a stale 10mm literal
+            % (COMSOL_models history), well below this design's actual
+            % D_ir=RotorID_mm (IPMRotorSizer.computeRotorGeometry_, paper
+            % eq. 17), so it was never tracking the sized rotor bore.
+            % Re-pin the Part Instance input too, same defensive pattern
+            % as rotor_diam.
+            obj.setParam_('d_s', obj.lengthStr_(options.ShaftDiameter_mm));
+            obj.setPartInput_(obj.rotorPartTag, 'shaft_diam', 'd_s');
          end
          if isfield(options, 'StatorYokeHeight_mm')
             obj.setParam_('h_sy', obj.lengthStr_(options.StatorYokeHeight_mm));
@@ -204,7 +217,7 @@ classdef ComsolPrebuiltInterface < handle
       end
 
       function summary(obj)
-         %summary  Print the seven pushed values back as currently
+         %summary  Print the eight pushed values back as currently
          %evaluated by the model, plus the derived d_cont/d_st, as a
          %quick confirmation that the push landed correctly.
          obj.ensureModelReady_();
@@ -217,6 +230,7 @@ classdef ComsolPrebuiltInterface < handle
          obj.printParam_(m, 'airgap', 'mm', 'Airgap:');
          obj.printParam_(m, 'h_sy',   'mm', 'Stator yoke height (h_sy):');
          obj.printParam_(m, 'd_r',    'mm', 'Rotor diameter (d_r):');
+         obj.printParam_(m, 'd_s',    'mm', 'Shaft diameter (d_s):');
          obj.printParam_(m, 'L',      'mm', 'Stack length (L):');
          obj.printParam_(m, 'd_cont', 'mm', 'Rotor/stator interface (d_cont, derived from d_r+airgap):');
          obj.printParam_(m, 'd_st',   'mm', 'Stator diameter (d_st, derived from h_sy):');
