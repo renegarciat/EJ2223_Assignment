@@ -25,9 +25,16 @@ Whr_fraction = 0.1; % [0.1 - 0.8] Half-width-rib fraction: how wide the ribs sho
 Hm_mm = 3; % [mm] Magnet height
 AspectRatio = 2.0; % [1.1 - 2.0] le/tau_p
 Dos_target_m = 0.0899; % [m] Target stator (core) outer diameter
+CurrentDensity_Amm2 = 12; % [A/mm^2] Design J_s,rms -- raised from the 8
+                           % A/mm^2 default so Formula 2's D^3L stack
+                           % length clears the 110mm axial limit (see
+                           % report's "Formula 2" section); reused below
+                           % as Stage 1's bore, so this is now the single
+                           % current-density assumption for both.
 spec = MotorSpec(torque_Nm, cornerSpeed_rpm, maxSpeed_rpm, ...
                 vdcLink_V, poles, slots, ...
-                airgap_mm, AspectRatio = AspectRatio);
+                airgap_mm, AspectRatio = AspectRatio, ...
+                CurrentDensity_Amm2 = CurrentDensity_Amm2);
 spec.summary()
 materials = MotorMaterials();
 materials.Br = 1.37; % [T] N48 NdFeB at 20degC
@@ -41,8 +48,13 @@ essonsSizer.summary();       % print results
 disp('Running D^3L sizing...');
 essonsSizer.solveD3L(Dos_target_m);      % run
 essonsSizer.summaryD3L();       % print results
-% Run paper's calculations
-rotorSizer = IPMRotorSizer(spec, Materials = materials, AlphaM = AlphaM, Whr_fraction = Whr_fraction, Hm_mm = Hm_mm);
+% Run paper's calculations. Stage 1's bore is Formula 2's D^3L result
+% (essonsSizer.Dis_D3L_m), not Formula 1's D^2L one: it is the only one
+% of the two whose implied stator OD (Stage 4, eq. 94) actually respects
+% the Dos_target_m housing constraint above -- see report's Stage 1
+% discussion.
+rotorSizer = IPMRotorSizer(spec, Materials = materials, AlphaM = AlphaM, Whr_fraction = Whr_fraction, Hm_mm = Hm_mm, ...
+    StatorBore_mm = essonsSizer.Dis_D3L_m * 1e3);
 rotorSizer.solve();          % run until convergence
 rotorSizer.summary();        % print results
 

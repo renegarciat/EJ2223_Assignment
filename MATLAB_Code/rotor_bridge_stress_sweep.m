@@ -8,9 +8,10 @@
 % neglected).
 %
 % Uses this project's actual main.m design point (9.8 Nm, 10-pole/12-slot,
-% n_max=14,400 rpm, AlphaM=0.80, Whr_fraction=0.1, Hm_mm=3), not the
-% reference paper's own worked example -- keep these six values in sync
-% with main.m if that design point ever changes.
+% n_max=14,400 rpm, AlphaM=0.80, Whr_fraction=0.1, Hm_mm=3, Stage 1 bore
+% from Formula 2's D^3L result at J_s,rms=12A/mm^2), not the reference
+% paper's own worked example -- keep these values in sync with main.m if
+% that design point ever changes.
 clear; clc;
 
 torque_Nm       = 9.8;
@@ -24,10 +25,18 @@ AlphaM          = 0.80;
 Whr_fraction    = 0.1;
 Hm_mm           = 3;
 AspectRatio     = 2.0; % must match main.m -- MotorSpec's default (1.0) gives a different bore/geometry
+CurrentDensity_Amm2 = 12; % must match main.m -- also sets Formula 2's D^3L bore below
+Dos_target_m    = 0.0899; % must match main.m
 
 spec = MotorSpec(torque_Nm, cornerSpeed_rpm, maxSpeed_rpm, ...
-                  vdcLink_V, poles, slots, airgap_mm, AspectRatio = AspectRatio);
+                  vdcLink_V, poles, slots, airgap_mm, AspectRatio = AspectRatio, ...
+                  CurrentDensity_Amm2 = CurrentDensity_Amm2);
 materials = MotorMaterials();
+
+% Stage 1 bore = Formula 2's D^3L result, same as main.m
+essonsSizer = EssonsSizer(spec);
+essonsSizer.solveD3L(Dos_target_m, MakePlot=false);
+StatorBore_mm = essonsSizer.Dis_D3L_m * 1e3;
 
 wib_sweep_mm = linspace(0.5, 6.0, 25);
 sigma_ib_MPa = nan(size(wib_sweep_mm));
@@ -35,7 +44,7 @@ sigma_ib_MPa = nan(size(wib_sweep_mm));
 for i = 1:numel(wib_sweep_mm)
     sizer = IPMRotorSizer(spec, AlphaM=AlphaM, Whr_fraction=Whr_fraction, ...
                            Hm_mm=Hm_mm, Wib_mm=wib_sweep_mm(i), ...
-                           Materials=materials);
+                           Materials=materials, StatorBore_mm=StatorBore_mm);
     try
         sizer.solve();
         sigma_ib_MPa(i) = sizer.SigmaIb_MPa;
@@ -47,7 +56,7 @@ end
 
 % Current design point
 sizer0 = IPMRotorSizer(spec, AlphaM=AlphaM, Whr_fraction=Whr_fraction, ...
-                        Hm_mm=Hm_mm, Materials=materials);
+                        Hm_mm=Hm_mm, Materials=materials, StatorBore_mm=StatorBore_mm);
 sizer0.solve();
 
 % Manufacturing-driven rule of thumb from the paper: w_ib = 5*w_ob,
