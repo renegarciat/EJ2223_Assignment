@@ -11,6 +11,10 @@
 % Right panel: H_fe(B_fe) -- H as a function of B, matching the
 % orientation IPMRotorSizer.computeSaturationModel_ actually uses
 % internally (Hfe = @(B) Hfe_interp_(B)). Not a curve shown in the paper.
+%
+% Run from MATLAB_Code/ (or with it on the path); saves a PNG into
+% ../IPM_Design_Report/figures/, overwriting the copy the report embeds
+% (Fig. ref:fig:bh_curve) with this run's result.
 clear; clc;
 
 [B_T, H_Am] = IPMRotorSizer.bhCurveData();
@@ -30,7 +34,7 @@ mu_fe_pu_fine = B_fine(fine_mask) ./ (mu0 * H_fine(fine_mask));
 pts_mask = B_T > 0;
 mu_fe_pu_pts = B_T(pts_mask) ./ (mu0 * H_Am(pts_mask));
 
-figure('Name', 'M235-35A BH Curve', 'Position', [100 100 1100 480]);
+fig = figure('Name', 'M235-35A BH Curve', 'Position', [100 100 1100 480]);
 
 subplot(1,2,1);
 plot(B_fine(fine_mask), mu_fe_pu_fine, ...
@@ -64,6 +68,10 @@ legend('Location', 'northwest');
 xlim([0, 3]);
 
 sgtitle('M235-35A BH curve — digitized from paper Fig. 2, used by IPMRotorSizer.computeSaturationModel\_');
+
+out_dir = fullfile('..', 'IPM_Design_Report', 'figures');
+exportgraphics(fig, fullfile(out_dir, 'm235_35a_bh_curve.png'), 'Resolution', 150);
+fprintf('Saved figures/m235_35a_bh_curve.png\n');
 
 fprintf('Dataset points (B [T], H [A/m]):\n');
 for i = 1:numel(B_T)
