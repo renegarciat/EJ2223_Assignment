@@ -15,7 +15,7 @@
 % Run from MATLAB_Code/ (or with it on the path); saves a PNG into
 % ../IPM_Design_Report/figures/, overwriting the copy the report embeds
 % (Fig. ref:fig:bh_curve) with this run's result.
-clear; clc;
+clear; clc; close all;
 
 [B_T, H_Am] = IPMRotorSizer.bhCurveData();
 
@@ -40,15 +40,15 @@ subplot(1,2,1);
 plot(B_fine(fine_mask), mu_fe_pu_fine, ...
     '-', 'LineWidth', 1.5, 'DisplayName', 'pchip interpolant (used by solver)');
 hold on;
-plot(B_T(pts_mask), mu_fe_pu_pts, 'o', 'MarkerSize', 6, ...
-    'MarkerFaceColor', 'w', 'DisplayName', 'dataset points');
+% plot(B_T(pts_mask), mu_fe_pu_pts, 'o', 'MarkerSize', 6, ...
+%     'MarkerFaceColor', 'w', 'DisplayName', 'dataset points');
 hold off;
 grid on;
 set(gca, 'YScale', 'log');
 xlabel('B [T]');
 ylabel('\mu_{fe.pu}');
-title('Extended curve of pu permeability of M235-35A (paper Fig. 2)');
-legend('Location', 'northeast');
+title('Extended curve of pu permeability of M235-35A');
+% legend('Location', 'northeast');
 ylim([1, 10000]);
 xlim([0, 3]);
 
@@ -56,18 +56,18 @@ subplot(1,2,2);
 plot(B_fine(fine_mask), H_fine(fine_mask), '-', 'LineWidth', 1.5, ...
     'DisplayName', 'pchip interpolant (used by solver)');
 hold on;
-plot(B_T(pts_mask), H_Am(pts_mask), 'o', 'MarkerSize', 6, 'MarkerFaceColor', 'w', ...
-    'DisplayName', 'dataset points');
+% plot(B_T(pts_mask), H_Am(pts_mask), 'o', 'MarkerSize', 6, 'MarkerFaceColor', 'w', ...
+%     'DisplayName', 'dataset points');
 hold off;
 grid on;
 set(gca, 'YScale', 'log');
 xlabel('B_{fe} [T]');
 ylabel('H_{fe} [A/m]');
 title('H_{fe}(B_{fe})');
-legend('Location', 'northwest');
+% legend('Location', 'northwest');
 xlim([0, 3]);
 
-sgtitle('M235-35A BH curve — digitized from paper Fig. 2, used by IPMRotorSizer.computeSaturationModel\_');
+sgtitle('M235-35A Magnetic Data');
 
 out_dir = fullfile('..', 'IPM_Design_Report', 'figures');
 exportgraphics(fig, fullfile(out_dir, 'm235_35a_bh_curve.png'), 'Resolution', 150);

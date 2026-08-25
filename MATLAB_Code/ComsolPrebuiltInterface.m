@@ -90,7 +90,7 @@ classdef ComsolPrebuiltInterface < handle
             options.Airgap_mm (1,1) double
             options.StatorYokeHeight_mm (1,1) double
             options.RotorDiameter_mm (1,1) double
-            options.ShaftDiameter_mm (1,1) double
+            options.MagnetHeight_mm (1,1) double
             options.L_mm (1,1) double
             options.MaxSpeed_rpm (1,1) double
          end
@@ -117,17 +117,20 @@ classdef ComsolPrebuiltInterface < handle
             obj.setParam_('d_r', obj.lengthStr_(options.RotorDiameter_mm));
             obj.setPartInput_(obj.rotorPartTag, 'rotor_diam', 'd_r');
          end
-         if isfield(options, 'ShaftDiameter_mm')
-            % d_s ("Shaft diameter") already exists as a Global Parameter
-            % and pi1's shaft_diam input is already wired to it in the
-            % template -- but d_s was left at a stale 10mm literal
-            % (COMSOL_models history), well below this design's actual
-            % D_ir=RotorID_mm (IPMRotorSizer.computeRotorGeometry_, paper
-            % eq. 17), so it was never tracking the sized rotor bore.
-            % Re-pin the Part Instance input too, same defensive pattern
-            % as rotor_diam.
-            obj.setParam_('d_s', obj.lengthStr_(options.ShaftDiameter_mm));
-            obj.setPartInput_(obj.rotorPartTag, 'shaft_diam', 'd_s');
+         if isfield(options, 'MagnetHeight_mm')
+            % mag_h ("Magnet height") already exists as a Global Parameter
+            % and pi1's magnet_h input is already wired to it in the
+            % template. Re-pin the Part Instance input too, same
+            % defensive pattern as rotor_diam.
+            %
+            % NOTE: this replaces the shaft-diameter push (d_s/shaft_diam)
+            % that used to live here. d_s will go stale again relative to
+            % the sized rotor bore (IPMRotorSizer.RotorID_mm) -- see the
+            % history this comment used to describe -- unless it's kept
+            % in sync some other way (hand-set in COMSOL Desktop, or a
+            % future pushGeometry option).
+            obj.setParam_('mag_h', obj.lengthStr_(options.MagnetHeight_mm));
+            obj.setPartInput_(obj.rotorPartTag, 'magnet_h', 'mag_h');
          end
          if isfield(options, 'StatorYokeHeight_mm')
             obj.setParam_('h_sy', obj.lengthStr_(options.StatorYokeHeight_mm));
@@ -230,7 +233,7 @@ classdef ComsolPrebuiltInterface < handle
          obj.printParam_(m, 'airgap', 'mm', 'Airgap:');
          obj.printParam_(m, 'h_sy',   'mm', 'Stator yoke height (h_sy):');
          obj.printParam_(m, 'd_r',    'mm', 'Rotor diameter (d_r):');
-         obj.printParam_(m, 'd_s',    'mm', 'Shaft diameter (d_s):');
+         obj.printParam_(m, 'mag_h',  'mm', 'Magnet height (mag_h):');
          obj.printParam_(m, 'L',      'mm', 'Stack length (L):');
          obj.printParam_(m, 'd_cont', 'mm', 'Rotor/stator interface (d_cont, derived from d_r+airgap):');
          obj.printParam_(m, 'd_st',   'mm', 'Stator diameter (d_st, derived from h_sy):');

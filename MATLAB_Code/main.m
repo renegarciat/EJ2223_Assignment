@@ -2,7 +2,7 @@
 clear; clc; close all;
 % Directives
 RUN_COMSOL_PREBUILT = true;
-RUN_COMSOL_PREBUILT_STUDY = true;  % runs the coupled EM/structural transient
+RUN_COMSOL_PREBUILT_STUDY = false;  % runs the coupled EM/structural transient
                                     % study (~20 min). cheap to leave on:
                                     % results are cached (COMSOL_models/cache/)
                                     % and only re-solved when the design
@@ -64,7 +64,6 @@ if RUN_EFFICIENCY_MAP
     effMap.summary();
     effMap.plotMap(SavePath = fullfile(reportFiguresDir, 'efficiency_map.png'));
 end
-return; % temporal
 %% --- Push sizing results into the prebuilt COMSOL model
 % Requires "comsol mphserver" running in a terminal.
 if RUN_COMSOL_PREBUILT
@@ -75,7 +74,7 @@ if RUN_COMSOL_PREBUILT
         Airgap_mm = motorGeometry.Airgap_m * 1e3, ...
         StatorYokeHeight_mm = motorGeometry.StatorYokeHeight_m * 1e3, ...
         RotorDiameter_mm = motorGeometry.RotorOuterRadius_m * 2e3, ...
-        ShaftDiameter_mm = motorGeometry.RotorInnerRadius_m * 2e3, ...
+        MagnetHeight_mm = Hm_mm, ...
         L_mm = rotorSizer.StackLength_mm, ...
         MaxSpeed_rpm = maxSpeed_rpm);
     comsolPrebuilt.pushExcitation( ...

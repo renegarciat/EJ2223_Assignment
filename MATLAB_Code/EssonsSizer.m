@@ -39,7 +39,7 @@ classdef EssonsSizer < handle
 		Dis_m    (1,1) double = NaN   % inner stator diameter
 		le_m     (1,1) double = NaN   % effective length
 		tau_p_m  (1,1) double = NaN   % pole pitch
-		Dro_m    (1,1) double = NaN   % outer rotor diameter
+		D_r_m    (1,1) double = NaN   % outer rotor diameter
 
 		Solved   (1,1) logical = false
 
@@ -105,7 +105,7 @@ classdef EssonsSizer < handle
 			Airgap_m = s.Airgap_mm * 1e-3;
 
 
-			[Dis, le, tau_p, Dro] = obj.compute_D2L(T_Nm, P, Airgap_m, AspectRatio);
+			[Dis, le, tau_p, D_r] = obj.compute_D2L(T_Nm, P, Airgap_m, AspectRatio);
 
 			% --- property validation ---
 			if ~(isfinite(Dis) && Dis > 0)
@@ -119,14 +119,14 @@ classdef EssonsSizer < handle
 			% 		 'Check MotorSpec.Airgap_mm and/or the Esson sizing inputs.'], ...
 			% 		Airgap_m, Dis/2);
 			% end
-			if ~(isfinite(Dro) && Dro > 0)
+			if ~(isfinite(D_r) && D_r > 0)
 				error('EssonsSizer:invalidRotorDiameter', ...
-					'Computed rotor outer diameter (Dro) must be finite and > 0. Got: %g m', Dro);
+					'Computed rotor outer diameter (D_r) must be finite and > 0. Got: %g m', D_r);
 			end
 			obj.Dis_m    = Dis;
 			obj.le_m     = le;
 			obj.tau_p_m  = tau_p;
-			obj.Dro_m    = Dro;
+			obj.D_r_m    = D_r;
 			obj.Solved   = true;
 		end
 
@@ -238,7 +238,7 @@ classdef EssonsSizer < handle
 			fprintf('\nEssonsSizer D^2L results\n');
 			fprintf('%s\n', repmat('-', 1, 52));
 			fprintf('  %-30s %.2f mm\n', 'Dis:',    obj.Dis_m*1e3);
-			fprintf('  %-30s %.2f mm\n', 'Dro:',    obj.Dro_m*1e3);
+			fprintf('  %-30s %.2f mm\n', 'D_r:',    obj.D_r_m*1e3);
 			fprintf('  %-30s %.2f mm\n', 'le:',     obj.le_m*1e3);
 			fprintf('  %-30s %.2f mm\n', 'tau_p:',  obj.tau_p_m*1e3);
 			fprintf('  %-30s %.2f\n', 'lambda (Aspect ratio):',  obj.le_m/obj.tau_p_m);
@@ -282,7 +282,7 @@ classdef EssonsSizer < handle
 			s.results.Dis_m    = obj.Dis_m;
 			s.results.le_m     = obj.le_m;
 			s.results.tau_p_m  = obj.tau_p_m;
-			s.results.Dro_m    = obj.Dro_m;
+			s.results.D_r_m    = obj.D_r_m;
 			s.results.Solved   = obj.Solved;
 
 			if obj.SolvedD3L
@@ -314,14 +314,14 @@ classdef EssonsSizer < handle
 	% Private - computation
 	% =====================================================================
 	methods (Access = private)
-		function [Dis, le, tau_p, Dro] = compute_D2L(obj, T_Nm, P, Airgap_m, AspectRatio)
+		function [Dis, le, tau_p, D_r] = compute_D2L(obj, T_Nm, P, Airgap_m, AspectRatio)
 			sigma_m = 70e3; % [N/m^2] (Shear stress)
 			k = AspectRatio * pi / P; % [-] (Mechanical ratio)
 			% ---------- Calculation inner diameter of stator ---------------
 			Dis = (2 * T_Nm / (pi* sigma_m * k ))^(1/3);
 			le = k * Dis; % [m] (Effective length)
 			tau_p = pi * Dis / P;
-			Dro = Dis - 2 * Airgap_m;
+			D_r = Dis - 2 * Airgap_m;
 		end
 
 		function plotD3LOptimum_(obj, a, b, beta_t, beta_c, rho_u, Dis, Dos, P, N_s, constraintActive)
@@ -352,8 +352,7 @@ classdef EssonsSizer < handle
 			end
 			xlabel('\rho = D_{is}/D_{os}');
 			ylabel('f_o(\rho)');
-			title({sprintf('Output function f_o(\\rho), P=%d/N_s=%d', P, N_s), ...
-				sprintf('D_{os}=%.1fmm, solved \\rho=%.3f', Dos*1e3, ratio)});
+			title( sprintf('D_{os}=%.1fmm, solved \\rho=%.3f', Dos*1e3, ratio));
 			ylim([-0.1, 0.5]);
 
 			% ---------------- Right panel: annotated cross-section --------------
@@ -382,7 +381,7 @@ classdef EssonsSizer < handle
 			end
 			fill(R_is*cos(th), R_is*sin(th), [0.75 0.85 0.95], 'EdgeColor', 'k');
 
-			title({sprintf('Cross-section at \\rho=%.3f (P=%d, D_{os}=%.0fmm)', ratio, P, Dos*1e3), ...
+			title({sprintf('Cross-section at \\rho=%.3f (D_{os}=%.1fmm)', ratio, Dos*1e3), ...
 				sprintf('\\beta_t=%.3f (tooth/slot-pitch), \\beta_c=%.3f (2\\cdotd_{cs}/D_{is})', beta_t, beta_c)});
 
 			text(0, 0, sprintf('bore\nD_{is}=%.1fmm', Dis*1e3), 'HorizontalAlignment', 'center', 'FontSize', 8);

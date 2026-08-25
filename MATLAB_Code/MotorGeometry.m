@@ -54,7 +54,7 @@ classdef MotorGeometry
 			% geometry come from rotorSizer (IPMRotorSizer's own eqs.
 			% 65-94 winding/core sizing), not essonsSizer: EssonsSizer's
 			% D^2L formula (solveD2L()) was simplified to just Dis/le/
-			% tau_p/Dro and no longer derives Dos or slot dimensions --
+			% tau_p/D_r and no longer derives Dos or slot dimensions --
 			% see EssonsSizer.m's header note.
 			r_si = rotorSizer.StatorBore_mm / 2000; % mm -> m radius
 			r_so = rotorSizer.StatorOD_mm / 2000;   % mm -> m radius

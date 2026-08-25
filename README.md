@@ -174,7 +174,7 @@ sizer = EssonsSizer(spec, WindingFactor=0.91);
 
 #### Key properties
 
-- Results (set by `solve()`): `Dis_m`, `Dos_m`, `Dro_m`, `le_m`, `tau_p_m`, `tau_s_m`, `t_s_m`, `h_slot_m`, `h_cs_m`, `Ratio`, `q_spp`, `Solved`
+- Results (set by `solve()`): `Dis_m`, `Dos_m`, `D_r_m`, `le_m`, `tau_p_m`, `tau_s_m`, `t_s_m`, `h_slot_m`, `h_cs_m`, `Ratio`, `q_spp`, `Solved`
 - Convenience: `StatorBore_mm` (dependent) — `Dis_m` in mm
 
 #### Methods

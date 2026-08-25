@@ -4,7 +4,7 @@
 % Maybe consider decoupling IPMRotorSizer and EssonsSizer, letting IPMRotorSizer take the stator bore as an input.
 %
 % NOTE: solveD2L() (formerly solve()) was simplified to the plain D^2
-% formula -- it now only computes Dis, le, tau_p, Dro. The slot-geometry/
+% formula -- it now only computes Dis, le, tau_p, D_r. The slot-geometry/
 % Dos outputs this test used to check (q_spp, tau_s_m, t_s_m, h_slot_m,
 % h_cs_m, Dos_m, Ratio) no longer exist on EssonsSizer, so those
 % assertions were removed rather than left to hard-crash on a missing
@@ -35,7 +35,7 @@ Dis_m = 160e-3; % [m] inner stator diameter
 le_m = 81.3e-3; % [m] effective length
 tau_p_m = (pi * Dis_m) / poles;    % [m] pole pitch
 AspectRatio = le_m/tau_p_m; % [-] le/tau_p ratio
-Dro_m    = 158.0e-3;
+D_r_m    = 158.0e-3;
 
 % Tolerances (adjusted to SI units matching your class definitions)
 tol_m = 1.5e-3;      % 1.5 mm tolerance for absolute mechanical lengths
@@ -53,5 +53,5 @@ assert(abs(sizer.Dis_m - Dis_m) < tol_m, ...
     Dis_m * 1e3, sizer.Dis_m * 1e3, abs(sizer.Dis_m - Dis_m) * 1e3);
 assert(abs(sizer.le_m - le_m) < tol_m);
 assert(abs(sizer.tau_p_m - tau_p_m) < tol_m);
-assert(abs(sizer.Dro_m - Dro_m) < tol_m);
+assert(abs(sizer.D_r_m - D_r_m) < tol_m);
 disp('TEST PASSED: EssonsSizer matches paper reference values within tolerances.');
