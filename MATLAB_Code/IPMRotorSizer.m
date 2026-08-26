@@ -755,7 +755,7 @@ classdef IPMRotorSizer < handle
             k_w     = obj.WindingFactor;
             tau_r_m = obj.RotorPolePitch_mm * 1e-3;  % [m]
             B_g1o   = obj.Bg1o_T;
-            Delta   = s.LinearCurrentDensity_Am;      % peak [A/m]
+            Delta   = s.LinearCurrentDensity_Am;      % RMS [A/m] (MotorSpec.m:38,109) -- Mq below applies its own sqrt(2) RMS->peak conversion
             D_m     = obj.statorBore_mm_ * 1e-3;      % [m]
 
             % Specific permeance lambda_is — Eq. (51)
@@ -804,7 +804,7 @@ classdef IPMRotorSizer < handle
             phi_g1o  = obj.PhiG1o_Wbm;              % [Wb/m]
             ell_m    = obj.StackLength_mm * 1e-3;   % [m]
             eta_phi_c = obj.EtaPhi_c;
-            Delta_c  = s.LinearCurrentDensity_Am;   % [A/m]
+            Delta_c  = s.LinearCurrentDensity_Am;   % RMS [A/m]
             B_g1o    = obj.Bg1o_T;
             B_ts     = s.Bt_T;
             B_ys     = s.Bc_T;
